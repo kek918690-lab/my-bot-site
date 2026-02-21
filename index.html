@@ -6,14 +6,13 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --bg: #0d0d0d; --card: #1a1a1a; --accent: #3498db; --green: #27ae60; --text: #ffffff; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 90px; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
         .page { display: none; padding: 20px; }
-        .active { display: block; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .stat-box { background: var(--card); padding: 15px; border-radius: 15px; border-bottom: 3px solid var(--accent); text-align: center; flex: 1; }
+        .active { display: block; }
+        .stat-box { background: var(--card); padding: 15px; border-radius: 15px; text-align: center; flex: 1; border-bottom: 3px solid var(--accent); }
         .card { background: var(--card); border-radius: 16px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
         .btn { background: var(--green); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; }
-        .btn-blue { background: var(--accent); }
+        .btn-blue { background: var(--accent); width: 100%; padding: 15px; margin-top: 10px; }
         .navbar { position: fixed; bottom: 0; width: 100%; background: #151515; display: flex; border-top: 1px solid #333; padding: 10px 0; }
         .nav-item { flex: 1; text-align: center; color: #555; font-size: 12px; }
         .active-nav { color: var(--accent); }
@@ -22,24 +21,23 @@
 <body>
 
     <div id="p1" class="page active">
-        <h2>🏰 Империя</h2>
+        <h2>🏰 Твоя Империя</h2>
         <div style="display:flex; gap:10px; margin-bottom:20px;">
             <div class="stat-box">💰 <b id="m">100</b></div>
             <div class="stat-box">🧱 <b id="b">0</b></div>
         </div>
-        <button class="btn" style="width:100%; padding:20px; background:var(--accent)" onclick="work()">🔨 ДОБЫЧА</button>
+        <button class="btn" style="width:100%; padding:25px; font-size:18px;" onclick="work()">🔨 ДОБЫЧА</button>
+        <button class="btn btn-blue" onclick="save()">💾 СОХРАНИТЬ В РЕЙТИНГ</button>
     </div>
 
     <div id="p2" class="page">
-        <h2>👥 Найм и Игроки</h2>
-        <p style="font-size:12px; color:#666">БОТЫ</p>
+        <h2>👥 Найм и Рейтинг</h2>
         <div class="card">
             <div><b>🤖 Работяга</b><br><small>+1 🧱/сек | 50💰</small></div>
             <button class="btn" onclick="buy(50, 1)">Нанять</button>
         </div>
-        
-        <p style="font-size:12px; color:#666; margin-top:20px;">АКТИВНЫЕ ИГРОКИ</p>
-        <div id="player-list">Загрузка списка...</div>
+        <p style="font-size:12px; color:#666; margin-top:20px;">ТОП ИГРОКОВ (ОБНОВЛЯЕТСЯ ПРИ СОХРАНЕНИИ)</p>
+        <div id="player-list">Загрузка рейтинга...</div>
     </div>
 
     <div class="navbar">
@@ -49,17 +47,21 @@
 
     <script>
         let tg = window.Telegram.WebApp;
+        tg.expand();
         let s = { money: 100, bricks: 0, pps: 0 };
 
         function tab(n) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('p' + n).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active-nav'));
+            event.currentTarget.classList.add('active-nav');
         }
 
         function work() { s.bricks++; s.money += 0.5; update(); }
-
+        
         function buy(p, pow) {
-            if(s.money >= p) { s.money -= p; s.pps += pow; update(); tg.showAlert("Бот куплен!"); }
+            if(s.money >= p) { s.money -= p; s.pps += pow; update(); }
+            else { tg.showAlert("Мало монет!"); }
         }
 
         function update() {
@@ -67,21 +69,26 @@
             document.getElementById('b').innerText = s.bricks;
         }
 
+        // ОТПРАВКА ДАННЫХ БОТУ
+        function save() {
+            tg.sendData(JSON.stringify({bricks: s.bricks}));
+            tg.close(); // Закрываем, чтобы бот мог прислать сообщение о сохранении
+        }
+
         async function loadPlayers() {
             try {
-                // Добавляем случайное число, чтобы браузер не брал старую версию файла
-                const res = await fetch('players.json?nocache=' + Math.random());
+                const res = await fetch('players.json?v=' + Math.random());
                 const data = await res.json();
                 const container = document.getElementById('player-list');
                 container.innerHTML = '';
                 data.forEach(p => {
-                    container.innerHTML += `<div class="card"><div><b>👤 ${p.username}</b><br><small>🧱 Кирпичей: ${p.bricks}</small></div><button class="btn btn-blue">ИНФО</button></div>`;
+                    container.innerHTML += `<div class="card"><div><b>👤 ${p.username}</b><br><small>🧱 Кирпичей: ${p.bricks}</small></div></div>`;
                 });
-            } catch(e) { console.log("Файл еще не готов"); }
+            } catch(e) { console.log("Ошибка загрузки ТОПа"); }
         }
 
         setInterval(() => { if(s.pps > 0) { s.bricks += s.pps; s.money += s.pps*0.2; update(); } }, 1000);
-        setInterval(loadPlayers, 10000); // Обновляем список игроков каждые 10 сек
+        setInterval(loadPlayers, 15000);
         loadPlayers();
     </script>
 </body>
