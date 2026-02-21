@@ -1,75 +1,35 @@
- <!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body { font-family: sans-serif; background: #0b0b0b; color: white; margin: 0; padding-bottom: 80px; }
-        .page { display: none; padding: 20px; text-align: center; }
-        .active { display: block; }
-        .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #161616; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; z-index: 100; }
-        .nav-item { color: #666; font-size: 11px; text-align: center; cursor: pointer; }
-        .nav-item.active-nav { color: #3498db; }
-        .char-card { background: #1c1c1c; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
-        .buy-btn { background: #27ae60; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; }
-        .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .res-card { background: #1c1c1c; padding: 15px; border-radius: 12px; border: 1px solid #222; }
-    </style>
-</head>
-<body>
-
-    <div id="page1" class="page active">
-        <h3>👥 Управление рабочими</h3>
-        <div class="char-card">
-            <div style="text-align: left;">
-                <b style="color:#3498db">Разнорабочий #1</b><br>
-                <small>❤️ Здоровье: 100%</small>
-            </div>
-            <button class="buy-btn" onclick="applyMedicine()">💉 Медицина</button>
+<div class="navbar">
+        <div class="nav-item active-nav" onclick="showPage(1, this)">
+            <div class="nav-icon">👥</div>Найм
         </div>
-    </div>
-
-    <div id="page2" class="page">
-        <h3>🏰 Моя Империя</h3>
-        <div class="res-grid">
-            <div class="res-card">💰 Монеты<br><b>100</b></div>
-            <div class="res-card">🧱 Кирпичики<br><b id="bricks_val">0</b></div>
-            <div class="res-card">🍞 Еда<br><b>10</b></div>
-            <div class="res-card">❤️ Жизни<br><b>100</b></div>
+        <div class="nav-item" onclick="showPage(2, this)">
+            <div class="nav-icon">🏠</div>Главная
         </div>
-        <p style="font-size: 12px; color: #888; margin-top: 20px;">Добыча происходит каждые 2 минуты при наличии еды.</p>
-    </div>
-
-    <div id="page3" class="page">
-        <h3>🛒 Рынок ресурсов</h3>
-        <div class="char-card">
-            <div style="text-align:left">🍞 Пакет еды</div>
-            <button class="buy-btn">20💰</button>
+        <div class="nav-item" onclick="showPage(3, this)">
+            <div class="nav-icon">🛒</div>Рынок
         </div>
-    </div>
-
-    <div class="navbar">
-        <div class="nav-item active-nav" onclick="showP(1, this)">👥 Найм</div>
-        <div class="nav-item" onclick="showP(2, this)">🏠 Главная</div>
-        <div class="nav-item" onclick="showP(3, this)">🛒 Рынок</div>
+        <div class="nav-item" onclick="showPage(4, this)">
+            <div class="nav-icon">⚙️</div>Опции
+        </div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
+        tg.headerColor = '#161616';
 
-        function showP(n, e) {
+        function showPage(pageId, element) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('page' + n).classList.add('active');
+            document.getElementById('page' + pageId).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active-nav'));
-            e.classList.add('active-nav');
+            element.classList.add('active-nav');
+            tg.HapticFeedback.impactOccurred('light');
         }
 
-        function applyMedicine() {
+        function openMedicineMenu(workerName) {
             tg.showPopup({
-                title: '💉 Использовать медицину',
-                message: 'Выберите время защиты от перенайма для этого рабочего:',
+                title: '💉 Медицина: ' + workerName,
+                message: 'Выберите время защиты от перенайма (иммунитет):',
                 buttons: [
                     {id: '30', type: 'default', text: '30 минут (10💰)'},
                     {id: '120', type: 'default', text: '2 часа (30💰)'},
@@ -78,7 +38,7 @@
                 ]
             }, function(btnId) {
                 if (btnId && btnId !== 'cancel') {
-                    tg.showAlert("Иммунитет установлен на " + btnId + " минут!");
+                    tg.showAlert("Защита для " + workerName + " установлена на " + btnId + " минут!");
                 }
             });
         }
