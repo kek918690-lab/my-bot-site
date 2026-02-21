@@ -5,219 +5,187 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #0d0d0d; --card: #1a1a1a; --accent: #3498db; --green: #2ecc71; --red: #e74c3c; --text: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 80px; user-select: none; }
+        :root { --bg: #0d0d0d; --card: #1a1a1a; --accent: #3498db; --green: #2ecc71; --red: #e74c3c; --text: #ffffff; --gold: #f1c40f; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 90px; }
         
-        .top-bar { background: var(--card); padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-bottom: 2px solid #333; position: sticky; top: 0; z-index: 100; }
-        .s-item { font-size: 12px; color: #888; }
-        .s-item b { color: #fff; font-size: 16px; display: block; }
-        
-        .hp-bar { grid-column: span 2; background: #222; height: 10px; border-radius: 5px; overflow: hidden; border: 1px solid #333; }
-        #hp-fill { height: 100%; width: 100%; background: var(--green); transition: 1s linear; }
+        .top-bar { background: var(--card); padding: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; border-bottom: 2px solid #333; position: sticky; top: 0; z-index: 100; }
+        .res-item { font-size: 11px; color: #888; }
+        .res-item b { color: #fff; font-size: 15px; display: block; }
+        .hp-container { grid-column: span 2; background: #222; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 5px; border: 1px solid #333; }
+        #hp-fill { height: 100%; width: 100%; background: var(--green); transition: 0.5s; }
 
-        .page { display: none; padding: 15px; }
+        .page { display: none; padding: 15px; animation: fadeIn 0.3s; }
         .active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        .card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 10px; border: 1px solid #333; }
-        .btn { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; }
+        .card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid #333; }
+        .btn { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; }
         
-        /* Редкость предметов */
-        .rarity-common { border-left: 4px solid #888; }
-        .rarity-rare { border-left: 4px solid #3498db; }
-        .rarity-epic { border-left: 4px solid #9b59b6; }
-        .rarity-mythic { border-left: 4px solid #e74c3c; }
-        .rarity-legendary { border-left: 4px solid #f1c40f; box-shadow: inset 0 0 10px rgba(241,196,15,0.2); }
-
-        .stat-line { color: #2ecc71; font-size: 12px; }
-        .enchant-line { color: #f39c12; font-size: 12px; font-style: italic; }
-
         .navbar { position: fixed; bottom: 0; width: 100%; background: #111; display: flex; border-top: 1px solid #333; padding: 10px 0; }
-        .nav-item { flex: 1; text-align: center; color: #555; font-size: 11px; cursor: pointer; }
+        .nav-item { flex: 1; text-align: center; color: #555; font-size: 10px; cursor: pointer; }
         .active-nav { color: var(--accent); }
     </style>
 </head>
 <body>
 
     <div class="top-bar">
-        <div class="s-item">💰 Монеты <b id="money">100</b></div>
-        <div class="s-item">📦 Склад <b id="res_count">0</b></div>
-        <div class="s-item">🧪 Мед. <b id="med_stock">0</b></div>
-        <div class="s-item">✨ Арт. <b id="arts">0</b></div>
-        <div class="hp-bar"><div id="hp-fill"></div></div>
-        <div id="shield-stat" style="grid-column: span 2; text-align: center; font-size: 10px; margin-top: 5px; color: #e74c3c;">УЯЗВИМ</div>
+        <div class="res-item">💰 Монеты <b id="m-money">0</b></div>
+        <div class="res-item">🧱 Ресурсы <b id="m-res">0</b></div>
+        <div class="res-item">🧪 Медицина <b id="m-med">0</b></div>
+        <div class="res-item">✨ Артефакты <b id="m-arts">0</b></div>
+        <div class="hp-container"><div id="hp-fill"></div></div>
+        <div id="shield-text" style="grid-column: span 2; text-align: center; font-size: 10px; margin-top: 4px;">СТАТУС...</div>
     </div>
 
-    <div id="page-main" class="page active">
-        <div id="choice-screen">
-            <h3>🏢 Выберите специализацию</h3>
-            <button class="btn" onclick="startWork('med')">🏥 Лаборатория (Медицина)</button>
-            <button class="btn" onclick="startWork('build')" style="margin-top:10px">🧱 Завод (Кирпичи)</button>
-            <button class="btn" onclick="startWork('food')" style="margin-top:10px">🍎 Теплица (Еда)</button>
+    <div id="p-hire" class="page"><h3>👥 Найм</h3><div class="card">В разработке...</div></div>
+    
+    <div id="p-obj" class="page active">
+        <div id="setup-view">
+            <h3>🏢 Выбор предприятия</h3>
+            <button class="btn" onclick="startWork('build')">🧱 Кирпичный завод</button>
+            <button class="btn" onclick="startWork('med')" style="margin-top:10px; background:var(--green)">🧪 Лаборатория медицины</button>
         </div>
-        <div id="work-ui" style="display:none; text-align: center;">
-            <h2 id="ind-title">Объект</h2>
-            <div style="font-size: 32px; font-weight: bold; margin: 20px 0; color: #3498db;" id="timer">--:--</div>
-            <button class="btn" style="background:var(--green)" onclick="useMed()">💉 Защита (100 Мед.)</button>
-            <button class="btn" style="background:#222; border: 1px solid #444;" onclick="save()">💾 Сохранить в Облако</button>
+        <div id="work-view" style="display:none; text-align: center;">
+            <h2 id="work-title">РАБОТА</h2>
+            <div id="timer" style="font-size: 40px; font-weight: bold; margin: 20px 0; color: var(--accent);">--:--</div>
+            <button class="btn" style="background:var(--green)" onclick="applyMed()">💉 Использовать 100 Мед.</button>
         </div>
     </div>
 
-    <div id="page-forge" class="page">
-        <h3>🔨 Королевская Кузница</h3>
-        <div class="card">
-            <b>Ковка снаряжения</b><br>
-            <small style="color: #888;">Цена: 500📦 + 1✨</small>
-            <button class="btn" onclick="craftItem()">КОВАТЬ ПРЕДМЕТ</button>
-        </div>
-        <div id="inventory-list"></div>
+    <div id="p-market" class="page"><h3>⚖️ Рынок</h3><div class="card">Кузница доступна только активным игрокам.</div></div>
+    
+    <div id="p-settings" class="page">
+        <h3>⚙️ Настройки</h3>
+        <div class="card" id="offline-report" style="font-size: 12px; color: var(--gold); display: none;"></div>
+        <button class="btn" onclick="saveData()">💾 СОХРАНИТЬ ПРОГРЕСС</button>
     </div>
 
     <nav class="navbar">
-        <div class="nav-item active-nav" id="nav-main" onclick="showPage('main')">🏢 Объект</div>
-        <div class="nav-item" id="nav-forge" onclick="showPage('forge')">🔨 Кузница</div>
+        <div class="nav-item" onclick="tab('hire')">👥 Найм</div>
+        <div class="nav-item active-nav" onclick="tab('obj')">🏢 Объект</div>
+        <div class="nav-item" onclick="tab('market')">⚖️ Рынок</div>
+        <div class="nav-item" onclick="tab('settings')">⚙️ Настр.</div>
     </nav>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        let s = { money: 100, res: 0, med: 0, arts: 0, hp: 100, shield: 0, type: '', timeLeft: 0, inv: [] };
-
-        const rarities = [
-            { n: 'Обычный', c: 60, cls: 'rarity-common', m: 1 },
-            { n: 'Редкий', c: 25, cls: 'rarity-rare', m: 1.5 },
-            { n: 'Эпический', c: 10, cls: 'rarity-epic', m: 2.2 },
-            { n: 'Мифический', c: 4, cls: 'rarity-mythic', m: 3.5 },
-            { n: 'Легендарный', c: 1, cls: 'rarity-legendary', m: 5 }
-        ];
-
-        const enchants = {
-            w: ["🔥 Воспламенение", "⚡ Скорость", "🎯 Крит. шанс", "💀 Крит. урон"],
-            a: ["💎 Отражение", "🌵 Шипы", "🏃 Уворот", "🛡️ Защита"]
+        let s = { 
+            money: 100, res: 0, med: 0, arts: 0, 
+            hp: 100, shield: 0, type: '', timeLeft: 0, 
+            lastTime: Date.now() 
         };
 
-        function showPage(p) {
-            document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-            document.getElementById('page-' + p).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-nav'));
-            document.getElementById('nav-' + p).classList.add('active-nav');
+        function tab(name) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('p-' + name).classList.add('active');
         }
 
-        function startWork(t) {
-            s.type = t; 
-            s.timeLeft = Math.floor(Math.random() * 300) + 300;
-            document.getElementById('choice-screen').style.display = 'none';
-            document.getElementById('work-ui').style.display = 'block';
-            document.getElementById('ind-title').innerText = "🏢 " + t.toUpperCase();
+        function startWork(type) {
+            s.type = type;
+            s.timeLeft = Math.floor(Math.random() * 301) + 300;
+            document.getElementById('setup-view').style.display = 'none';
+            document.getElementById('work-view').style.display = 'block';
+            document.getElementById('work-title').innerText = type === 'build' ? '🧱 ЗАВОД' : '🧪 ЛАБОРАТОРИЯ';
         }
 
-        function craftItem() {
-            if(s.res < 500 || s.arts < 1) {
-                tg.showAlert("Нужно 500 ресурсов и 1 артефакт!");
-                return;
-            }
-            s.res -= 500; s.arts -= 1;
-
-            let r = rarities[0]; let rd = Math.random() * 100; let acc = 0;
-            for(let x of rarities) { acc += x.c; if(rd <= acc) { r = x; break; } }
-
-            let q = 1 + (Math.floor(Math.random() * 10) + 1) / 100;
-            let power = r.m * q;
-            let isW = Math.random() > 0.5;
+        // --- ЛОГИКА АФК (БЕЗ АРТЕФАКТОВ) ---
+        function calculateOffline() {
+            let now = Date.now();
+            let diff = Math.floor((now - (s.lastTime || now)) / 1000);
             
-            let item = {
-                id: Date.now(), 
-                name: isW ? "Боевой Меч" : "Доспех",
-                rar: r.n, cls: r.cls, qual: Math.round((q-1)*100),
-                stats: isW ? [`Урон: ${Math.round(20*power)}`] : [`ХП: ${Math.round(150*power)}`],
-                ench: []
-            };
+            if (diff > 60 && s.type !== '') {
+                let cycles = Math.floor(diff / 450); // Средний цикл 7.5 мин
+                
+                if (cycles > 0) {
+                    if (s.type === 'build') s.res += cycles * 15;
+                    else if (s.type === 'med') s.med += cycles * 15;
+                    s.money += cycles * 5;
 
-            let eCount = r.n === 'Редкий' ? 1 : r.n === 'Эпический' ? 2 : r.n === 'Мифический' ? 3 : r.n === 'Легендарный' ? 4 : 0;
-            let pool = [...enchants[isW ? 'w' : 'a']];
-            for(let i=0; i<eCount; i++) {
-                if(pool.length) {
-                    let index = Math.floor(Math.random() * pool.length);
-                    item.ench.push(pool.splice(index, 1)[0]);
+                    let report = document.getElementById('offline-report');
+                    report.style.display = 'block';
+                    report.innerHTML = `
+                        <b>📊 АФК за ${Math.floor(diff/60)} мин:</b><br>
+                        📦 Ресурсы: +${cycles * 15}<br>
+                        💰 Монеты: +${cycles * 5}<br>
+                        <span style="color:var(--red)">✨ Артефакты в АФК не выпадают!</span>
+                    `;
+                }
+
+                // Расчет щита и ХП
+                if (s.shield > 0) {
+                    s.shield -= diff;
+                    if (s.shield < 0) {
+                        let unprot = Math.abs(s.shield) / 60;
+                        s.hp -= unprot * 1;
+                        s.shield = 0;
+                    }
+                } else {
+                    s.hp -= (diff / 60) * 1;
+                }
+                if (s.hp < 0) s.hp = 0;
+            }
+            s.lastTime = now;
+            updateUI();
+        }
+
+        function applyMed() {
+            if(s.med >= 100) { s.med -= 100; s.shield += 900; s.hp = 100; }
+            updateUI();
+        }
+
+        function saveData() {
+            s.lastTime = Date.now();
+            tg.sendData(JSON.stringify(s));
+            tg.showAlert("Прогресс сохранен!");
+        }
+
+        // ОСНОВНОЙ ЦИКЛ (ОНЛАЙН)
+        setInterval(() => {
+            if(s.type !== '') {
+                s.timeLeft--;
+                if(s.timeLeft <= 0) {
+                    s.timeLeft = Math.floor(Math.random() * 301) + 300;
+                    if(s.type === 'build') s.res += 15; else s.med += 15;
+                    s.money += 5;
+                    // Артефакты выпадают ТОЛЬКО ТУТ (в онлайне)
+                    if(Math.random() < 0.15) {
+                        s.arts++;
+                        tg.showAlert("✨ Найден редкий артефакт!");
+                    }
                 }
             }
-
-            s.inv.push(item);
-            updateInvUI();
-            updateUI();
-            tg.showAlert(`Выкован ${item.rar} ${item.name}!`);
-        }
-
-        function updateInvUI() {
-            let html = '';
-            s.inv.forEach(i => {
-                html += `<div class="card ${i.cls}"><b>${i.rar} ${i.name}</b> <small>(+${i.qual}% качество)</small><br>`;
-                i.stats.forEach(st => html += `<div class="stat-line">● ${st}</div>`);
-                i.ench.forEach(en => html += `<div class="enchant-line">✨ ${en}</div>`);
-                html += `</div>`;
-            });
-            document.getElementById('inventory-list').innerHTML = html || '<p style="text-align:center; color:#555;">Инвентарь пуст</p>';
-        }
-
-        function useMed() {
-            if(s.med >= 100) { 
-                s.med -= 100; s.shield = 900; s.hp = 100; 
-                tg.showAlert("Защита активирована!"); 
-            } else {
-                tg.showAlert("Нужно 100 ед. медицины!");
-            }
-            updateUI();
-        }
-
-        setInterval(() => {
-            if(!s.type) return;
-            
-            s.timeLeft--;
-            if(s.timeLeft <= 0) {
-                s.timeLeft = Math.floor(Math.random() * 300) + 300;
-                if(s.type === 'med') s.med += 15; else s.res += 15;
-                s.money += 5;
-                if(Math.random() < 0.15) s.arts++;
-            }
-
-            if(s.shield > 0) {
-                s.shield--;
-            } else {
-                s.hp -= (1/60);
-                if(s.hp < 0) s.hp = 0;
-            }
+            if(s.shield > 0) s.shield--; else s.hp -= (1/60);
+            if(s.hp < 0) s.hp = 0;
+            s.lastTime = Date.now();
             updateUI();
         }, 1000);
 
         function updateUI() {
-            document.getElementById('money').innerText = Math.floor(s.money);
-            document.getElementById('res_count').innerText = s.res;
-            document.getElementById('med_stock').innerText = s.med;
-            document.getElementById('arts').innerText = s.arts;
-            document.getElementById('hp-fill').style.width = s.hp + '%';
+            document.getElementById('m-money').innerText = Math.floor(s.money);
+            document.getElementById('m-res').innerText = s.res;
+            document.getElementById('m-med').innerText = s.med;
+            document.getElementById('m-arts').innerText = s.arts;
+            document.getElementById('hp-fill').style.width = s.hp + "%";
             
-            let m = Math.floor(s.timeLeft/60), sc = s.timeLeft%60;
-            document.getElementById('timer').innerText = s.type ? `${m}:${sc < 10 ? '0' : ''}${sc}` : "--:--";
-            
-            let ss = document.getElementById('shield-stat');
+            let st = document.getElementById('shield-text');
             if(s.shield > 0) {
-                ss.innerText = `ЗАЩИТА: ${Math.floor(s.shield/60)} мин`;
-                ss.style.color = "#3498db";
+                st.innerText = `ЗАЩИТА: ${Math.floor(s.shield/60)}м`;
+                st.style.color = "var(--accent)";
             } else {
-                ss.innerText = "УЯЗВИМ (ХП ПАДАЕТ)";
-                ss.style.color = "#e74c3c";
+                st.innerText = "УЯЗВИМ (ХП -1%/мин)";
+                st.style.color = "var(--red)";
+            }
+
+            if(s.type) {
+                let m = Math.floor(s.timeLeft/60), sc = s.timeLeft%60;
+                document.getElementById('timer').innerText = `${m}:${sc < 10 ? '0' : ''}${sc}`;
             }
         }
 
-        function save() {
-            tg.sendData(JSON.stringify({
-                res: s.res, money: s.money, med: s.med, 
-                arts: s.arts, hp: s.hp, shield: s.shield, inv: s.inv
-            }));
-        }
-
-        updateUI();
-        updateInvUI();
+        // Запуск расчета при входе
+        setTimeout(calculateOffline, 500);
     </script>
 </body>
 </html>
