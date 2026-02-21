@@ -5,78 +5,115 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: sans-serif; background: #0b0b0b; color: white; margin: 0; padding-bottom: 80px; }
-        .page { display: none; padding: 20px; text-align: center; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0b0b0b; color: white; margin: 0; padding-bottom: 80px; overflow-x: hidden; }
+        .page { display: none; padding: 20px; animation: fadeIn 0.3s; }
         .active { display: block; }
-        .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #161616; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; }
-        .nav-item { color: #666; font-size: 11px; text-align: center; flex: 1; }
-        .nav-item.active-nav { color: #3498db; }
-        .card { background: #1c1c1c; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
-        .btn { background: #27ae60; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        
+        .card { background: #1c1c1c; border-radius: 15px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .stat-card { background: #252525; padding: 15px; border-radius: 12px; border-top: 3px solid #3498db; }
+        
+        .btn { background: #27ae60; color: white; border: none; padding: 10px 15px; border-radius: 10px; font-weight: bold; transition: 0.2s; }
+        .btn:active { transform: scale(0.95); opacity: 0.8; }
         .btn-blue { background: #3498db; }
-        small { color: #888; }
+        .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #161616; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #333; }
+        .nav-item { color: #555; font-size: 12px; text-align: center; flex: 1; cursor: pointer; }
+        .nav-item.active-nav { color: #3498db; font-weight: bold; }
+        small { color: #aaa; font-size: 11px; }
     </style>
 </head>
 <body>
 
     <div id="page1" class="page active">
-        <h3>👥 Рынок найма</h3>
+        <h2 style="color: #3498db;">👥 Рынок найма</h2>
+        <div style="text-align: left; color: #888; font-size: 12px; margin-bottom: 10px;">ДОСТУПНЫЕ БОТЫ:</div>
         
-        <div style="text-align: left; color: #3498db; font-size: 12px; margin-bottom: 10px;">МАГАЗИН БОТОВ:</div>
         <div class="card">
-            <div style="text-align: left;"><b>🤖 Бот-Работяга</b><br><small>🧱 +2 кирпича | ❤️ 100%</small></div>
-            <button class="btn" onclick="tg.showAlert('Нанято!')">50💰</button>
+            <div style="text-align: left;"><b>🤖 Бот-Работяга</b><br><small>🧱 +2 кирпича/сек</small></div>
+            <button class="btn" onclick="buyBot(50, 2, 'Работяга')">50💰</button>
         </div>
 
-        <div style="text-align: left; color: #e74c3c; font-size: 12px; margin: 20px 0 10px;">ИГРОКИ В СЕТИ:</div>
-        <div id="real-players">
+        <div class="card">
+            <div style="text-align: left;"><b>👷 Бот-Прораб</b><br><small>🧱 +10 кирпичей/сек</small></div>
+            <button class="btn" onclick="buyBot(200, 10, 'Прораб')">200💰</button>
+        </div>
+
+        <div style="text-align: left; color: #e74c3c; font-size: 12px; margin: 25px 0 10px;">ЛИДЕРЫ ИГРЫ:</div>
+        <div id="player-list">
+            <div class="card">
+                <div style="text-align: left;"><b>👤 Danil (Владелец)</b><br><small>🏰 Уровень: 99</small></div>
+                <button class="btn btn-blue" onclick="tg.showAlert('Вы похвалили игрока!')">⭐</button>
             </div>
+        </div>
     </div>
 
     <div id="page2" class="page">
-        <h3>🏰 Империя</h3>
-        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-            <div class="card" style="display:block">💰 Монеты<br><b id="m-val">100</b></div>
-            <div class="card" style="display:block">🧱 Кирпичи<br><b id="w-val">0</b></div>
+        <h2 style="color: #27ae60;">🏰 Твоя Империя</h2>
+        <div class="stats-grid">
+            <div class="stat-card">💰 Монеты<br><b id="money-display">100</b></div>
+            <div class="stat-card">🧱 Кирпичи<br><b id="bricks-display">0</b></div>
+        </div>
+        <div style="margin-top: 30px; color: #888;">
+            <p>Добыча: <span id="pps-display" style="color: #3498db; font-weight: bold;">0</span> кирпичей/сек</p>
+            <button class="btn btn-blue" style="width: 100%; padding: 20px;" onclick="manualClick()">🔨 ДОБЫТЬ ВРУЧНУЮ</button>
         </div>
     </div>
 
     <div class="navbar">
-        <div class="nav-item active-nav" onclick="showP(1, this)">👥<br>Найм</div>
-        <div class="nav-item" onclick="showP(2, this)">🏰<br>Главная</div>
+        <div id="nav1" class="nav-item active-nav" onclick="showP(1)">👥<br>Найм</div>
+        <div id="nav2" class="nav-item" onclick="showP(2)">🏰<br>Главная</div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
         tg.expand();
 
-        function showP(n, e) {
+        // ИГРОВЫЕ ПЕРЕМЕННЫЕ
+        let money = 100;
+        let bricks = 0;
+        let pps = 0; // Production Per Second (добыча в секунду)
+
+        function showP(n) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('page' + n).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active-nav'));
-            e.classList.add('active-nav');
+            document.getElementById('nav' + n).classList.add('active-nav');
         }
 
-        // Имитация списка реальных игроков
-        const players = [
-            {n: "Danil_Admin", r: "1,240"},
-            {n: "Alex_Build", r: "850"},
-            {n: "Ivan_Pro", r: "420"},
-            {n: "User_777", r: "150"}
-        ];
-
-        const pList = document.getElementById('real-players');
-        players.forEach(p => {
-            pList.innerHTML += `
-                <div class="card">
-                    <div style="text-align: left;"><b>👤 ${p.n}</b><br><small>🧱 Добыча: ${p.r}/час</small></div>
-                    <button class="btn btn-blue" onclick="openMed()">💉 Мед</button>
-                </div>`;
-        });
-
-        function openMed() {
-            tg.showPopup({ title: '💉 Медицина', message: 'Защитить игрока?', buttons: [{text: 'Да (10💰)', id: 'y'}, {type: 'cancel'}] });
+        function updateUI() {
+            document.getElementById('money-display').innerText = Math.floor(money);
+            document.getElementById('bricks-display').innerText = bricks;
+            document.getElementById('pps-display').innerText = pps;
         }
+
+        function buyBot(cost, power, name) {
+            if (money >= cost) {
+                money -= cost;
+                pps += power;
+                updateUI();
+                tg.showScanQrPopup({text: "Бот " + name + " нанят!"}); // Просто красивый эффект
+                setTimeout(() => tg.closeScanQrPopup(), 1000);
+            } else {
+                tg.showAlert("Недостаточно монет! Нужно еще " + (cost - money) + "💰");
+            }
+        }
+
+        function manualClick() {
+            bricks += 1;
+            money += 0.5; // За каждый кирпич немного денег
+            updateUI();
+        }
+
+        // ГЛАВНЫЙ ИГРОВОЙ ЦИКЛ (Каждую секунду)
+        setInterval(() => {
+            if (pps > 0) {
+                bricks += pps;
+                money += (pps * 0.2); // Боты приносят пассивный доход
+                updateUI();
+            }
+        }, 1000);
+
     </script>
 </body>
 </html>
