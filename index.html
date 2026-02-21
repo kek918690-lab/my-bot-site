@@ -10,134 +10,112 @@
             --green: #2ecc71; --red: #e74c3c; --text: #ffffff; --gold: #f1c40f; 
         }
         body { 
-            font-family: 'Segoe UI', Roboto, sans-serif; 
-            background: var(--bg); color: var(--text); 
-            margin: 0; padding-bottom: 100px; transition: background 0.3s;
+            font-family: sans-serif; background: var(--bg); color: var(--text); 
+            margin: 0; padding-bottom: 100px;
         }
         
-        /* Шапка ресурсов */
         .top-bar { 
             background: rgba(22, 22, 22, 0.9); backdrop-filter: blur(10px);
-            padding: 12px; display: grid; grid-template-columns: repeat(3, 1fr); 
-            gap: 10px; border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 100;
+            padding: 10px; display: grid; grid-template-columns: repeat(3, 1fr); 
+            gap: 5px; border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 100;
         }
-        .res-item { text-align: center; }
-        .res-item span { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-        .res-item b { color: var(--gold); font-size: 14px; display: block; }
+        .res-item { text-align: center; font-size: 10px; }
+        .res-item b { color: var(--gold); font-size: 12px; display: block; }
 
-        .page { display: none; padding: 20px; animation: slideUp 0.3s ease-out; }
+        .page { display: none; padding: 15px; animation: fadeIn 0.3s; }
         .active { display: block; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Карточки и кнопки */
         .card { 
-            background: var(--card); border-radius: 16px; padding: 18px; 
-            margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            background: var(--card); border-radius: 16px; padding: 15px; 
+            margin-bottom: 15px; border: 1px solid #333;
         }
         .btn { 
-            background: var(--accent); color: white; border: none; padding: 14px; 
-            border-radius: 12px; width: 100%; font-weight: bold; cursor: pointer; 
-            transition: transform 0.1s, filter 0.2s;
+            background: var(--accent); color: white; border: none; padding: 12px; 
+            border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 8px;
         }
-        .btn:active { transform: scale(0.96); }
-        .btn:disabled { opacity: 0.3; filter: grayscale(1); }
+        .btn:disabled { opacity: 0.3; }
 
-        /* Прокачка героя */
-        .hero-stats { display: flex; align-items: center; justify-content: space-between; }
-        .power-val { font-size: 24px; font-weight: 800; color: var(--accent); }
-
-        /* Кузня */
-        .forge-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-top: 15px; }
-        .item-row { 
-            background: rgba(255,255,255,0.03); padding: 12px; border-radius: 10px; 
-            margin-top: 8px; display: flex; justify-content: space-between; border-left: 3px solid var(--accent);
-        }
-
-        /* Навигация */
         .navbar { 
-            position: fixed; bottom: 0; width: 100%; background: rgba(15,15,15,0.95); 
-            display: flex; border-top: 1px solid #222; padding: 12px 0; backdrop-filter: blur(15px);
+            position: fixed; bottom: 0; width: 100%; background: #111; 
+            display: flex; border-top: 1px solid #222; padding: 10px 0; z-index: 200;
         }
-        .nav-item { flex: 1; text-align: center; color: #666; font-size: 11px; font-weight: 600; }
-        .active-nav { color: var(--accent); }
+        .nav-item { flex: 1; text-align: center; color: #555; font-size: 10px; cursor: pointer; }
+        .active-nav { color: var(--accent); font-weight: bold; }
 
-        /* Кастомизация */
-        .color-dot { width: 30px; height: 30px; border-radius: 50%; display: inline-block; margin-right: 10px; border: 2px solid #fff; }
+        .item-row { background: #222; padding: 10px; border-radius: 8px; margin-top: 5px; border-left: 3px solid var(--accent); }
     </style>
 </head>
 <body>
 
     <div class="top-bar">
-        <div class="res-item"><span>💰 Монеты</span><b id="m-money">0</b></div>
-        <div class="res-item"><span>🧱 Кирпич</span><b id="m-res">0</b></div>
-        <div class="res-item"><span>🧪 Мед.</span><b id="m-med">0</b></div>
-        <div class="res-item"><span>🍎 Еда</span><b id="m-food">0</b></div>
-        <div class="res-item"><span>✨ Герой</span><b id="m-art-p">0</b></div>
-        <div class="res-item"><span>📜 Кузня</span><b id="m-art-k">0</b></div>
+        <div class="res-item">💰 Монеты <b id="m-money">0</b></div>
+        <div class="res-item">🧱 Кирпич <b id="m-res">0</b></div>
+        <div class="res-item">🧪 Мед. <b id="m-med">0</b></div>
+        <div class="res-item">🍎 Еда <b id="m-food">0</b></div>
+        <div class="res-item">✨ Герой <b id="m-art-p">0</b></div>
+        <div class="res-item">📜 Кузня <b id="m-art-k">0</b></div>
     </div>
 
     <div id="p-obj" class="page active">
         <div class="card">
-            <div class="hero-stats">
-                <div>
-                    <span style="color:#888; font-size: 12px;">Уровень Силы</span>
-                    <div class="power-val" id="p-power">10</div>
-                </div>
-                <button class="btn" style="width: auto; padding: 10px 20px; background: var(--gold); color: #000;" onclick="upgradeHero()">Улучшить (5 ✨)</button>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>Сила: <b id="p-power" style="font-size: 20px;">10</b></div>
+                <button class="btn" style="width:auto; margin:0; background:var(--gold); color:#000;" onclick="upgradeHero()">+ Сила (5 ✨)</button>
             </div>
         </div>
 
-        <div id="setup-view">
-            <h3>🏢 Производство</h3>
-            <button class="btn" onclick="startWork('build')">🧱 Запустить кирпичный завод</button>
-            <button class="btn" onclick="startWork('med')" style="margin-top:10px; background:var(--green)">🧪 Открыть лабораторию</button>
-            <button class="btn" onclick="startWork('food')" style="margin-top:10px; background:#e67e22">🍎 Развернуть теплицы</button>
+        <div id="setup-view" class="card">
+            <h3>🏢 Выберите специализацию</h3>
+            <p style="font-size: 12px; color: #888;">(Выбор делается один раз)</p>
+            <button class="btn" onclick="startWork('Завод')">🧱 Кирпичный Завод</button>
+            <button class="btn" onclick="startWork('Лаборатория')" style="background:var(--green)">🧪 Лаборатория</button>
+            <button class="btn" onclick="startWork('Теплица')" style="background:#e67e22">🍎 Теплица</button>
         </div>
 
-        <div id="work-view" style="display:none; text-align: center;" class="card">
-            <h4 id="work-title" style="letter-spacing: 2px; color: #888;">РАБОТА</h4>
-            <div id="timer" style="font-size: 48px; font-weight: 900; margin: 10px 0;">00:00</div>
-            <div style="font-size: 12px; color: var(--gold);">Цикл запущен...</div>
+        <div id="work-view" style="display:none;" class="card">
+            <h3 id="work-title">РАБОТА</h3>
+            <div id="timer" style="font-size: 40px; text-align: center; margin: 20px 0;">00:00</div>
+            <p style="text-align: center; color: var(--gold);">Производство активно...</p>
         </div>
     </div>
 
-    <div id="p-market" class="page">
-        <h3>🔨 Королевская Кузница</h3>
+    <div id="p-forge" class="page">
+        <h3>🔨 Кузница</h3>
         <div class="card">
-            <div id="forge-status" style="font-weight: bold; margin-bottom: 10px;">Готова</div>
-            <div class="forge-grid">
+            <div id="forge-status">Готова</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5px;">
                 <button class="btn" id="btn-c1" onclick="craft(1)">x1</button>
                 <button class="btn" id="btn-c3" onclick="craft(3)">x3</button>
                 <button class="btn" id="btn-c5" onclick="craft(5)">x5</button>
             </div>
-            <p style="font-size: 11px; color: #555; margin-top: 10px; text-align: center;">Крафт: 500🧱 + 1📜 за предмет. Откат 3 мин.</p>
         </div>
         <div id="inv-list"></div>
+    </div>
+
+    <div id="p-market" class="page">
+        <h3>⚖️ Рынок</h3>
+        <div class="card">
+            <p>Продать ресурсы за монеты?</p>
+            <button class="btn" onclick="tg.showAlert('Торговец прибудет позже')">Торговать</button>
+        </div>
     </div>
 
     <div id="p-settings" class="page">
         <h3>⚙️ Настройки</h3>
         <div class="card">
-            <h4>🎨 Акцентный цвет</h4>
-            <div style="display: flex; margin-top: 10px;">
-                <div class="color-dot" style="background: #3498db;" onclick="changeColor('#3498db')"></div>
-                <div class="color-dot" style="background: #f1c40f;" onclick="changeColor('#f1c40f')"></div>
-                <div class="color-dot" style="background: #2ecc71;" onclick="changeColor('#2ecc71')"></div>
-            </div>
+            <h4>Цвет интерфейса</h4>
+            <button class="btn" onclick="changeColor('#3498db')">Синий</button>
+            <button class="btn" onclick="changeColor('#f1c40f')" style="background:#f1c40f; color:#000;">Золотой</button>
         </div>
-        <div class="card">
-            <h4>🌓 Тема интерфейса</h4>
-            <button class="btn" style="background: #222;" onclick="changeTheme('#0d0d0d', '#161616')">Тень</button>
-            <button class="btn" style="background: #1a1c2c; margin-top: 10px;" onclick="changeTheme('#1a1c2c', '#252a41')">Полночь</button>
-        </div>
-        <button class="btn" style="background: #444;" onclick="saveData()">💾 Сохранить всё</button>
+        <button class="btn" style="background:#444;" onclick="saveData()">💾 Сохранить</button>
     </div>
 
     <nav class="navbar">
-        <div class="nav-item active-nav" id="n-obj" onclick="tab('obj')">🏠 Главная</div>
-        <div class="nav-item" id="n-market" onclick="tab('market')">⚔️ Кузня</div>
-        <div class="nav-item" id="n-settings" onclick="tab('settings')">⚙️ Настр.</div>
+        <div class="nav-item active-nav" onclick="showTab('obj', this)">🏠 Главная</div>
+        <div class="nav-item" onclick="showTab('forge', this)">⚔️ Кузня</div>
+        <div class="nav-item" onclick="showTab('market', this)">⚖️ Рынок</div>
+        <div class="nav-item" onclick="showTab('settings', this)">⚙️ Настр.</div>
     </nav>
 
     <script>
@@ -147,67 +125,51 @@
             power: 10, type: '', timeLeft: 0, forgeReady: 0, inv: [] 
         };
 
-        function tab(name) {
+        function showTab(name, el) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('p-' + name).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active-nav'));
-            document.getElementById('n-' + name).classList.add('active-nav');
+            el.classList.add('active-nav');
         }
 
         function startWork(type) {
             s.type = type;
-            s.timeLeft = Math.floor(Math.random() * 300) + 300;
+            s.timeLeft = 450;
             document.getElementById('setup-view').style.display = 'none';
             document.getElementById('work-view').style.display = 'block';
             document.getElementById('work-title').innerText = type.toUpperCase();
+            updateUI();
         }
 
         function upgradeHero() {
-            if (s.artP >= 5) {
-                s.artP -= 5; s.power += 5;
-                updateUI();
-                tg.showAlert("Сила героя выросла до " + s.power + "!");
-            } else { tg.showAlert("Нужно 5 артефактов героя!"); }
+            if (s.artP >= 5) { s.artP -= 5; s.power += 5; updateUI(); }
+            else { tg.showAlert("Нужно 5 артефактов!"); }
         }
 
         function craft(count) {
-            let resCost = count * 500, artCost = count * 1;
-            if (s.res < resCost || s.artK < artCost) return tg.showAlert("Недостаточно ресурсов!");
+            if (s.res < count*500 || s.artK < count) return tg.showAlert("Мало ресурсов!");
             if (Date.now() < s.forgeReady) return tg.showAlert("Кузня остывает!");
-
-            s.res -= resCost; s.artK -= artCost;
+            s.res -= count*500; s.artK -= count;
             for(let i=0; i<count; i++) {
-                let isWeapon = Math.random() > 0.5;
-                s.inv.push({
-                    type: isWeapon ? "⚔️ Оружие" : "🛡️ Броня",
-                    power: Math.floor(Math.random() * 50) + s.power // Сила крафта зависит от силы героя
-                });
+                s.inv.push({ t: Math.random()>0.5?"⚔️":"🛡️", p: Math.floor(Math.random()*50)+s.power });
             }
             s.forgeReady = Date.now() + 180000;
-            updateUI(); renderInv();
-            tg.showAlert("Скрафчено предметов: " + count);
+            renderInv(); updateUI();
         }
 
-        function changeColor(hex) {
-            document.documentElement.style.setProperty('--accent', hex);
-        }
-
-        function changeTheme(bg, card) {
-            document.documentElement.style.setProperty('--bg', bg);
-            document.documentElement.style.setProperty('--card', card);
-        }
+        function changeColor(c) { document.documentElement.style.setProperty('--accent', c); }
 
         setInterval(() => {
             if(s.type) {
                 s.timeLeft--;
                 if(s.timeLeft <= 0) {
                     s.timeLeft = 450;
-                    if(s.type === 'build') s.res += 30;
-                    else if(s.type === 'med') s.med += 30;
+                    if(s.type === 'Завод') s.res += 30;
+                    else if(s.type === 'Лаборатория') s.med += 30;
                     else s.food += 30;
                     s.money += 15;
-                    if(Math.random() < 0.2) s.artK++;
-                    if(Math.random() < 0.1) s.artP++;
+                    if(Math.random()<0.2) s.artK++;
+                    if(Math.random()<0.1) s.artP++;
                 }
             }
             updateUI();
@@ -223,28 +185,19 @@
             document.getElementById('p-power').innerText = s.power;
 
             let diff = s.forgeReady - Date.now();
-            let fStatus = document.getElementById('forge-status');
-            if (diff > 0) {
-                fStatus.innerText = `⏳ Остывание: ${Math.ceil(diff/1000)}с`;
-                fStatus.style.color = var(--red);
-                document.querySelectorAll('[id^="btn-c"]').forEach(b => b.disabled = true);
-            } else {
-                fStatus.innerText = "🔥 Кузня готова";
-                fStatus.style.color = "var(--green)";
-                document.querySelectorAll('[id^="btn-c"]').forEach(b => b.disabled = false);
-            }
-
+            document.getElementById('forge-status').innerText = diff > 0 ? `Остывание: ${Math.ceil(diff/1000)}с` : "Готова";
+            
             if(s.type) {
                 let m = Math.floor(s.timeLeft/60), sc = s.timeLeft%60;
                 document.getElementById('timer').innerText = `${m}:${sc < 10 ? '0' : ''}${sc}`;
+                document.getElementById('setup-view').style.display = 'none';
+                document.getElementById('work-view').style.display = 'block';
             }
         }
 
         function renderInv() {
             let h = '';
-            s.inv.slice().reverse().forEach(item => {
-                h += `<div class="item-row"><b>${item.type}</b> <span>Мощь: ${item.power}</span></div>`;
-            });
+            s.inv.slice().reverse().forEach(i => { h += `<div class="item-row">${i.t} Мощь: ${i.p}</div>`; });
             document.getElementById('inv-list').innerHTML = h;
         }
 
