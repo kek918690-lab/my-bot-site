@@ -1,9 +1,7 @@
 import asyncio
 import sqlite3
-from datetime import datetime
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import Command
-from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import WebAppInfo
 
 TOKEN = "8409829464:AAH06p6GDkY6Pvj-Ou_RU3gMeVWyRnADpqE"
@@ -15,45 +13,34 @@ dp = Dispatcher()
 def init_db():
     conn = sqlite3.connect('economy_game.db')
     cursor = conn.cursor()
-    # Создаем таблицы
     cursor.execute('''CREATE TABLE IF NOT EXISTS users (
-        user_id INTEGER PRIMARY KEY, money INTEGER DEFAULT 100,
-        wood INTEGER DEFAULT 0, food INTEGER DEFAULT 10, 
-        hp INTEGER DEFAULT 100, business_type TEXT DEFAULT 'bricks')''')
-    
-    # Авто-исправление базы: добавляем колонку, если её нет
-    try:
-        cursor.execute("ALTER TABLE users ADD COLUMN business_type TEXT DEFAULT 'bricks'")
-    except sqlite3.OperationalError:
-        pass
+        user_id INTEGER PRIMARY KEY, 
+        username TEXT,
+        money INTEGER DEFAULT 100,
+        wood INTEGER DEFAULT 0)''')
     conn.commit()
     conn.close()
-
-# Фоновая добыча раз в 2 минуты
-async def resource_generator():
-    while True:
-        await asyncio.sleep(120)
-        conn = sqlite3.connect('economy_game.db')
-        cursor = conn.cursor()
-        # Если есть еда — даем кирпичи (wood), забираем еду
-        cursor.execute("UPDATE users SET wood = wood + 10, food = food - 1 WHERE food > 0 AND business_type = 'bricks'")
-        # Ферма просто дает еду
-        cursor.execute("UPDATE users SET food = food + 5 WHERE business_type = 'food'")
-        conn.commit()
-        conn.close()
-        print(f"[{datetime.now().strftime('%H:%M')}] Ресурсы начислены.")
 
 @dp.message(Command("start"))
 async def start(message: types.Message):
     init_db()
-    builder = InlineKeyboardBuilder()
-    builder.row(types.InlineKeyboardButton(text="💎 Войти в Империю", web_app=WebAppInfo(url=WEB_APP_URL)))
-    await message.answer("🏗 Добро пожаловать! Управляй рабочими и ресурсами здесь:", reply_markup=builder.as_markup())
+    uid = message.from_user.id
+    uname = message.from_user.first_name
+    
+    conn = sqlite3.connect('economy_game.db')
+    cursor = conn.cursor()
+    cursor.execute("INSERT OR IGNORE INTO users (user_id, username) VALUES (?, ?)", (uid, uname))
+    conn.commit()
+    conn.close()
+    
+    markup = types.InlineKeyboardMarkup(inline_keyboard=[
+        [types.InlineKeyboardButton(text="💎 Войти в Империю", web_app=WebAppInfo(url=WEB_APP_URL))]
+    ])
+    await message.answer(f"Привет, {uname}! Ты добавлен в список лидеров. Входи в игру:", reply_markup=markup)
 
 async def main():
     init_db()
-    asyncio.create_task(resource_generator())
-    await bot.delete_webhook(drop_pending_updates=True)
+    print("Бот запущен и готов записывать игроков...")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":

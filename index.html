@@ -8,73 +8,42 @@
         body { font-family: sans-serif; background: #0b0b0b; color: white; margin: 0; padding-bottom: 80px; }
         .page { display: none; padding: 20px; text-align: center; }
         .active { display: block; }
-        
-        /* Навигация */
-        .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #161616; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; z-index: 1000; }
-        .nav-item { color: #666; font-size: 11px; text-align: center; flex: 1; cursor: pointer; }
+        .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #161616; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; }
+        .nav-item { color: #666; font-size: 11px; text-align: center; flex: 1; }
         .nav-item.active-nav { color: #3498db; }
-        
-        /* Карточки */
         .card { background: #1c1c1c; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
-        .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .res-card { background: #1c1c1c; padding: 12px; border-radius: 12px; border: 1px solid #333; text-align: center; }
-        .res-card b { display: block; font-size: 18px; color: #3498db; margin-top: 5px; }
-        
-        .btn { background: #27ae60; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn { background: #27ae60; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; }
         .btn-blue { background: #3498db; }
-        .btn-red { background: #e74c3c; }
+        small { color: #888; }
     </style>
 </head>
 <body>
 
     <div id="page1" class="page active">
-        <h3>👥 Рынок труда</h3>
+        <h3>👥 Рынок найма</h3>
         
-        <div style="text-align: left; color: #888; font-size: 12px; margin-bottom: 10px;">БОТЫ:</div>
+        <div style="text-align: left; color: #3498db; font-size: 12px; margin-bottom: 10px;">МАГАЗИН БОТОВ:</div>
         <div class="card">
             <div style="text-align: left;"><b>🤖 Бот-Работяга</b><br><small>🧱 +2 кирпича | ❤️ 100%</small></div>
             <button class="btn" onclick="tg.showAlert('Нанято!')">50💰</button>
         </div>
 
-        <div style="text-align: left; color: #888; font-size: 12px; margin: 15px 0 10px;">ИГРОКИ:</div>
-        <div class="card">
-            <div style="text-align: left;"><b>👤 Игрок: Admin</b><br><small>🧱 Добыча: 150/ч</small></div>
-            <button class="btn btn-blue" onclick="openMed()">💉 Мед</button>
-        </div>
-        <div class="card">
-            <div style="text-align: left;"><b>👤 Игрок: Worker_1</b><br><small>🧱 Добыча: 40/ч</small></div>
-            <button class="btn btn-blue" onclick="openMed()">💉 Мед</button>
-        </div>
+        <div style="text-align: left; color: #e74c3c; font-size: 12px; margin: 20px 0 10px;">ИГРОКИ В СЕТИ:</div>
+        <div id="real-players">
+            </div>
     </div>
 
     <div id="page2" class="page">
-        <h3>🏰 Моя Империя</h3>
-        <div class="res-grid">
-            <div class="res-card">💰 Монеты<br><b>100</b></div>
-            <div class="res-card">🧱 Кирпичи<br><b>0</b></div>
-            <div class="res-card">🍞 Еда<br><b>10</b></div>
-            <div class="res-card">❤️ ХП<br><b>100</b></div>
+        <h3>🏰 Империя</h3>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div class="card" style="display:block">💰 Монеты<br><b id="m-val">100</b></div>
+            <div class="card" style="display:block">🧱 Кирпичи<br><b id="w-val">0</b></div>
         </div>
-    </div>
-
-    <div id="page3" class="page">
-        <h3>🛒 Рынок ресурсов</h3>
-        <div class="card">
-            <span>🍞 Пакет еды (5 шт)</span>
-            <button class="btn">20💰</button>
-        </div>
-    </div>
-
-    <div id="page4" class="page">
-        <h3>⚙️ Настройки</h3>
-        <button class="btn btn-red" style="width: 100%;" onclick="tg.close()">Выйти из игры</button>
     </div>
 
     <div class="navbar">
-        <div class="nav-item active-nav" onclick="showP(1, this)"><div>👥</div>Найм</div>
-        <div class="nav-item" onclick="showP(2, this)"><div>🏠</div>Главная</div>
-        <div class="nav-item" onclick="showP(3, this)"><div>🛒</div>Рынок</div>
-        <div class="nav-item" onclick="showP(4, this)"><div>⚙️</div>Опции</div>
+        <div class="nav-item active-nav" onclick="showP(1, this)">👥<br>Найм</div>
+        <div class="nav-item" onclick="showP(2, this)">🏰<br>Главная</div>
     </div>
 
     <script>
@@ -88,18 +57,25 @@
             e.classList.add('active-nav');
         }
 
+        // Имитация списка реальных игроков
+        const players = [
+            {n: "Danil_Admin", r: "1,240"},
+            {n: "Alex_Build", r: "850"},
+            {n: "Ivan_Pro", r: "420"},
+            {n: "User_777", r: "150"}
+        ];
+
+        const pList = document.getElementById('real-players');
+        players.forEach(p => {
+            pList.innerHTML += `
+                <div class="card">
+                    <div style="text-align: left;"><b>👤 ${p.n}</b><br><small>🧱 Добыча: ${p.r}/час</small></div>
+                    <button class="btn btn-blue" onclick="openMed()">💉 Мед</button>
+                </div>`;
+        });
+
         function openMed() {
-            tg.showPopup({
-                title: '💉 Медицина',
-                message: 'Выберите время защиты:',
-                buttons: [
-                    {id: '30', type: 'default', text: '30 мин (10💰)'},
-                    {id: '120', type: 'default', text: '2 часа (30💰)'},
-                    {type: 'cancel', text: 'Отмена'}
-                ]
-            }, function(btnId) {
-                if(btnId !== 'cancel') tg.showAlert("Защита установлена!");
-            });
+            tg.showPopup({ title: '💉 Медицина', message: 'Защитить игрока?', buttons: [{text: 'Да (10💰)', id: 'y'}, {type: 'cancel'}] });
         }
     </script>
 </body>
