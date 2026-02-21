@@ -5,91 +5,158 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --bg: #0d0d0d; --card: #1a1a1a; --accent: #3498db; --green: #27ae60; --text: #ffffff; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 100px; }
-        .page { display: none; padding: 20px; }
+        :root { --bg: #0d0d0d; --card: #1a1a1a; --accent: #3498db; --green: #2ecc71; --red: #e74c3c; --text: #ffffff; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 80px; user-select: none; }
+        
+        /* Верхняя панель ресурсов */
+        .top-bar { background: var(--card); padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; border-bottom: 2px solid #333; position: sticky; top: 0; z-index: 100; }
+        .s-item { font-size: 12px; color: #888; }
+        .s-item b { color: #fff; font-size: 16px; display: block; }
+        
+        .hp-bar { grid-column: span 2; background: #222; height: 10px; border-radius: 5px; overflow: hidden; border: 1px solid #333; }
+        #hp-fill { height: 100%; width: 100%; background: var(--green); transition: 1s linear; }
+
+        /* Вкладки */
+        .page { display: none; padding: 15px; animation: fadeIn 0.3s; }
         .active { display: block; }
-        .stat-box { background: var(--card); padding: 15px; border-radius: 15px; text-align: center; flex: 1; border-bottom: 3px solid var(--accent); }
-        .card { background: var(--card); border-radius: 16px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
-        .btn { background: var(--green); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; }
-        .btn-blue { background: var(--accent); width: 100%; padding: 15px; margin-top: 10px; }
-        .navbar { position: fixed; bottom: 0; width: 100%; background: #151515; display: flex; border-top: 1px solid #333; padding: 10px 0; }
-        .nav-item { flex: 1; text-align: center; color: #555; font-size: 12px; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Карточки предметов и меню */
+        .card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 10px; border: 1px solid #333; }
+        .btn { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; width: 100%; cursor: pointer; margin-top: 10px; }
+        
+        /* Редкость */
+        .rarity-common { border-left: 4px solid #888; color: #888; }
+        .rarity-rare { border-left: 4px solid #3498db; color: #3498db; }
+        .rarity-epic { border-left: 4px solid #9b59b6; color: #9b59b6; }
+        .rarity-mythic { border-left: 4px solid #e74c3c; color: #e74c3c; }
+        .rarity-legendary { border-left: 4px solid #f1c40f; color: #f1c40f; text-shadow: 0 0 5px rgba(241,196,15,0.3); }
+
+        .stat-line { color: #2ecc71; font-size: 12px; }
+        .enchant-line { color: #f39c12; font-size: 12px; font-style: italic; }
+
+        /* Навигация */
+        .navbar { position: fixed; bottom: 0; width: 100%; background: #111; display: flex; border-top: 1px solid #333; padding: 10px 0; }
+        .nav-item { flex: 1; text-align: center; color: #555; font-size: 11px; }
         .active-nav { color: var(--accent); }
     </style>
 </head>
 <body>
 
-    <div id="p1" class="page active">
-        <h2>🏰 Твоя Империя</h2>
-        <div style="display:flex; gap:10px; margin-bottom:20px;">
-            <div class="stat-box">💰 <b id="m">100</b></div>
-            <div class="stat-box">🧱 <b id="b">0</b></div>
-        </div>
-        <button class="btn" style="width:100%; padding:25px; font-size:18px;" onclick="work()">🔨 ДОБЫЧА</button>
-        <button class="btn btn-blue" onclick="save()">💾 СОХРАНИТЬ В РЕЙТИНГ</button>
+    <div class="top-bar">
+        <div class="s-item">💰 Монеты <b id="money">100</b></div>
+        <div class="s-item">📦 Склад <b id="res_count">0</b></div>
+        <div class="s-item">🧪 Мед. <b id="med_stock">0</b></div>
+        <div class="s-item">✨ Арт. <b id="arts">0</b></div>
+        <div class="hp-bar"><div id="hp-fill"></div></div>
+        <div id="shield-stat" style="grid-column: span 2; text-align: center; font-size: 10px; margin-top: 5px;">СТАТУС: УЯЗВИМ</div>
     </div>
 
-    <div id="p2" class="page">
-        <h2>👥 Найм и Рейтинг</h2>
+    <div id="page-main" class="page active">
+        <div id="choice-screen">
+            <h3>🏢 Выберите специализацию</h3>
+            <button class="btn" onclick="startWork('med')">🏥 Лаборатория (Мед)</button>
+            <button class="btn" onclick="startWork('build')" style="margin-top:10px">🧱 Завод (Кирпичи)</button>
+            <button class="btn" onclick="startWork('food')" style="margin-top:10px">🍎 Теплица (Еда)</button>
+        </div>
+        <div id="work-ui" style="display:none; text-align: center;">
+            <h2 id="ind-title">Объект</h2>
+            <div style="font-size: 30px; margin: 20px 0;" id="timer">--:--</div>
+            <button class="btn" style="background:var(--green)" onclick="useMed()">💉 Защита за 100 Мед.</button>
+            <button class="btn" style="background:#222" onclick="save()">💾 Сохранить прогресс</button>
+        </div>
+    </div>
+
+    <div id="page-forge" class="page">
+        <h3>🔨 Королевская Кузница</h3>
         <div class="card">
-            <div><b>🤖 Работяга</b><br><small>+1 🧱/сек | 50💰</small></div>
-            <button class="btn" onclick="buy(50, 1)">Нанять</button>
+            <b>Ковка снаряжения</b><br>
+            <small>Цена: 500📦 + 1✨</small>
+            <button class="btn" onclick="craftItem()">КОВАТЬ</button>
         </div>
-        <p style="font-size:12px; color:#666; margin-top:20px;">ТОП ИГРОКОВ (ОБНОВЛЯЕТСЯ ПРИ СОХРАНЕНИИ)</p>
-        <div id="player-list">Загрузка рейтинга...</div>
+        <div id="inventory-list"></div>
     </div>
 
-    <div class="navbar">
-        <div class="nav-item active-nav" onclick="tab(1)">🏰<br>Главная</div>
-        <div class="nav-item" onclick="tab(2)">👥<br>Найм</div>
-    </div>
+    <nav class="navbar">
+        <div class="nav-item active-nav" onclick="showPage('main')">🏢 Объект</div>
+        <div class="nav-item" onclick="showPage('forge')">🔨 Кузница</div>
+    </nav>
 
     <script>
         let tg = window.Telegram.WebApp;
-        tg.expand();
-        let s = { money: 100, bricks: 0, pps: 0 };
+        let s = { money: 100, res: 0, med: 0, arts: 0, hp: 100, shield: 0, type: '', timeLeft: 0, inv: [] };
 
-        function tab(n) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('p' + n).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active-nav'));
+        const rarities = [
+            { n: 'Обычный', c: 60, cls: 'rarity-common', m: 1 },
+            { n: 'Редкий', c: 25, cls: 'rarity-rare', m: 1.5 },
+            { n: 'Эпический', c: 10, cls: 'rarity-epic', m: 2.2 },
+            { n: 'Мифический', c: 4, cls: 'rarity-mythic', m: 3.5 },
+            { n: 'Легендарный', c: 1, cls: 'rarity-legendary', m: 5 }
+        ];
+
+        const enchants = {
+            w: ["🔥 Воспламенение", "⚡ Скорость", "🎯 Крит. шанс", "💀 Крит. урон"],
+            a: ["💎 Отражение", "🌵 Шипы", "🏃 Уворот", "🛡️ Защита"]
+        };
+
+        function showPage(p) {
+            document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+            document.getElementById('page-' + p).classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active-nav'));
             event.currentTarget.classList.add('active-nav');
         }
 
-        function work() { s.bricks++; s.money += 0.5; update(); }
-        
-        function buy(p, pow) {
-            if(s.money >= p) { s.money -= p; s.pps += pow; update(); }
-            else { tg.showAlert("Мало монет!"); }
+        function startWork(t) {
+            s.type = t; s.timeLeft = Math.floor(Math.random() * 300) + 300;
+            document.getElementById('choice-screen').style.display = 'none';
+            document.getElementById('work-ui').style.display = 'block';
+            document.getElementById('ind-title').innerText = t.toUpperCase();
         }
 
-        function update() {
-            document.getElementById('m').innerText = Math.floor(s.money);
-            document.getElementById('b').innerText = s.bricks;
+        function craftItem() {
+            if(s.res < 500 || s.arts < 1) return tg.showAlert("Недостаточно ресурсов!");
+            s.res -= 500; s.arts -= 1;
+
+            let r = rarities[0]; let rd = Math.random() * 100; let acc = 0;
+            for(let x of rarities) { acc += x.c; if(rd <= acc) { r = x; break; } }
+
+            let q = 1 + (Math.random() * 10) / 100; // Рандом 1-10%
+            let power = r.m * q;
+            let isW = Math.random() > 0.5;
+            let item = {
+                id: Date.now(), name: isW ? "Меч" : "Броня",
+                rar: r.n, cls: r.cls, qual: Math.round((q-1)*100),
+                stats: isW ? [`Урон: ${Math.round(20*power)}`] : [`ХП: ${Math.round(100*power)}`],
+                ench: []
+            };
+
+            let eCount = r.n === 'Редкий' ? 1 : r.n === 'Эпический' ? 2 : r.n === 'Мифический' ? 3 : r.n === 'Легендарный' ? 4 : 0;
+            let p = [...enchants[isW ? 'w' : 'a']];
+            for(let i=0; i<eCount; i++) if(p.length) item.ench.append(p.splice(Math.floor(Math.random()*p.length), 1)[0]);
+
+            s.inv.push(item);
+            updateInvUI();
+            updateUI();
         }
 
-        // ОТПРАВКА ДАННЫХ БОТУ
-        function save() {
-            tg.sendData(JSON.stringify({bricks: s.bricks}));
-            tg.close(); // Закрываем, чтобы бот мог прислать сообщение о сохранении
+        function updateInvUI() {
+            let html = '';
+            s.inv.forEach(i => {
+                html += `<div class="card ${i.cls}"><b>${i.rar} ${i.name}</b> (+${i.qual}%)<br>`;
+                i.stats.forEach(st => html += `<div class="stat-line">${st}</div>`);
+                i.ench.forEach(en => html += `<div class="enchant-line">✨ ${en}</div>`);
+                html += `</div>`;
+            });
+            document.getElementById('inventory-list').innerHTML = html;
         }
 
-        async function loadPlayers() {
-            try {
-                const res = await fetch('players.json?v=' + Math.random());
-                const data = await res.json();
-                const container = document.getElementById('player-list');
-                container.innerHTML = '';
-                data.forEach(p => {
-                    container.innerHTML += `<div class="card"><div><b>👤 ${p.username}</b><br><small>🧱 Кирпичей: ${p.bricks}</small></div></div>`;
-                });
-            } catch(e) { console.log("Ошибка загрузки ТОПа"); }
+        function useMed() {
+            if(s.med >= 100) { s.med -= 100; s.shield = 900; s.hp = 100; tg.showAlert("Защита на 15м!"); }
+            updateUI();
         }
 
-        setInterval(() => { if(s.pps > 0) { s.bricks += s.pps; s.money += s.pps*0.2; update(); } }, 1000);
-        setInterval(loadPlayers, 15000);
-        loadPlayers();
-    </script>
-</body>
-</html>
+        setInterval(() => {
+            if(!s.type) return;
+            s.timeLeft--;
+            if(s.timeLeft <= 0) {
+                s.timeLeft = Math.floor(Math.random() * 300) + 3
