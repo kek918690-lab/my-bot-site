@@ -5,115 +5,84 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #0b0b0b; color: white; margin: 0; padding-bottom: 80px; overflow-x: hidden; }
-        .page { display: none; padding: 20px; animation: fadeIn 0.3s; }
-        .active { display: block; }
+        :root { --bg: #0d0d0d; --card: #1a1a1a; --accent: #3498db; --green: #27ae60; --text: #ffffff; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 90px; }
+        .page { display: none; padding: 20px; }
+        .active { display: block; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        
-        .card { background: #1c1c1c; border-radius: 15px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
-        .stat-card { background: #252525; padding: 15px; border-radius: 12px; border-top: 3px solid #3498db; }
-        
-        .btn { background: #27ae60; color: white; border: none; padding: 10px 15px; border-radius: 10px; font-weight: bold; transition: 0.2s; }
-        .btn:active { transform: scale(0.95); opacity: 0.8; }
-        .btn-blue { background: #3498db; }
-        .navbar { position: fixed; bottom: 0; left: 0; right: 0; background: #161616; display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #333; }
-        .nav-item { color: #555; font-size: 12px; text-align: center; flex: 1; cursor: pointer; }
-        .nav-item.active-nav { color: #3498db; font-weight: bold; }
-        small { color: #aaa; font-size: 11px; }
+        .stat-box { background: var(--card); padding: 15px; border-radius: 15px; border-bottom: 3px solid var(--accent); text-align: center; flex: 1; }
+        .card { background: var(--card); border-radius: 16px; padding: 15px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #333; }
+        .btn { background: var(--green); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; }
+        .btn-blue { background: var(--accent); }
+        .navbar { position: fixed; bottom: 0; width: 100%; background: #151515; display: flex; border-top: 1px solid #333; padding: 10px 0; }
+        .nav-item { flex: 1; text-align: center; color: #555; font-size: 12px; }
+        .active-nav { color: var(--accent); }
     </style>
 </head>
 <body>
 
-    <div id="page1" class="page active">
-        <h2 style="color: #3498db;">👥 Рынок найма</h2>
-        <div style="text-align: left; color: #888; font-size: 12px; margin-bottom: 10px;">ДОСТУПНЫЕ БОТЫ:</div>
-        
-        <div class="card">
-            <div style="text-align: left;"><b>🤖 Бот-Работяга</b><br><small>🧱 +2 кирпича/сек</small></div>
-            <button class="btn" onclick="buyBot(50, 2, 'Работяга')">50💰</button>
+    <div id="p1" class="page active">
+        <h2>🏰 Империя</h2>
+        <div style="display:flex; gap:10px; margin-bottom:20px;">
+            <div class="stat-box">💰 <b id="m">100</b></div>
+            <div class="stat-box">🧱 <b id="b">0</b></div>
         </div>
-
-        <div class="card">
-            <div style="text-align: left;"><b>👷 Бот-Прораб</b><br><small>🧱 +10 кирпичей/сек</small></div>
-            <button class="btn" onclick="buyBot(200, 10, 'Прораб')">200💰</button>
-        </div>
-
-        <div style="text-align: left; color: #e74c3c; font-size: 12px; margin: 25px 0 10px;">ЛИДЕРЫ ИГРЫ:</div>
-        <div id="player-list">
-            <div class="card">
-                <div style="text-align: left;"><b>👤 Danil (Владелец)</b><br><small>🏰 Уровень: 99</small></div>
-                <button class="btn btn-blue" onclick="tg.showAlert('Вы похвалили игрока!')">⭐</button>
-            </div>
-        </div>
+        <button class="btn" style="width:100%; padding:20px; background:var(--accent)" onclick="work()">🔨 ДОБЫЧА</button>
     </div>
 
-    <div id="page2" class="page">
-        <h2 style="color: #27ae60;">🏰 Твоя Империя</h2>
-        <div class="stats-grid">
-            <div class="stat-card">💰 Монеты<br><b id="money-display">100</b></div>
-            <div class="stat-card">🧱 Кирпичи<br><b id="bricks-display">0</b></div>
+    <div id="p2" class="page">
+        <h2>👥 Найм и Игроки</h2>
+        <p style="font-size:12px; color:#666">БОТЫ</p>
+        <div class="card">
+            <div><b>🤖 Работяга</b><br><small>+1 🧱/сек | 50💰</small></div>
+            <button class="btn" onclick="buy(50, 1)">Нанять</button>
         </div>
-        <div style="margin-top: 30px; color: #888;">
-            <p>Добыча: <span id="pps-display" style="color: #3498db; font-weight: bold;">0</span> кирпичей/сек</p>
-            <button class="btn btn-blue" style="width: 100%; padding: 20px;" onclick="manualClick()">🔨 ДОБЫТЬ ВРУЧНУЮ</button>
-        </div>
+        
+        <p style="font-size:12px; color:#666; margin-top:20px;">АКТИВНЫЕ ИГРОКИ</p>
+        <div id="player-list">Загрузка списка...</div>
     </div>
 
     <div class="navbar">
-        <div id="nav1" class="nav-item active-nav" onclick="showP(1)">👥<br>Найм</div>
-        <div id="nav2" class="nav-item" onclick="showP(2)">🏰<br>Главная</div>
+        <div class="nav-item active-nav" onclick="tab(1)">🏰<br>Главная</div>
+        <div class="nav-item" onclick="tab(2)">👥<br>Найм</div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
-        tg.expand();
+        let s = { money: 100, bricks: 0, pps: 0 };
 
-        // ИГРОВЫЕ ПЕРЕМЕННЫЕ
-        let money = 100;
-        let bricks = 0;
-        let pps = 0; // Production Per Second (добыча в секунду)
-
-        function showP(n) {
+        function tab(n) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('page' + n).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active-nav'));
-            document.getElementById('nav' + n).classList.add('active-nav');
+            document.getElementById('p' + n).classList.add('active');
         }
 
-        function updateUI() {
-            document.getElementById('money-display').innerText = Math.floor(money);
-            document.getElementById('bricks-display').innerText = bricks;
-            document.getElementById('pps-display').innerText = pps;
+        function work() { s.bricks++; s.money += 0.5; update(); }
+
+        function buy(p, pow) {
+            if(s.money >= p) { s.money -= p; s.pps += pow; update(); tg.showAlert("Бот куплен!"); }
         }
 
-        function buyBot(cost, power, name) {
-            if (money >= cost) {
-                money -= cost;
-                pps += power;
-                updateUI();
-                tg.showScanQrPopup({text: "Бот " + name + " нанят!"}); // Просто красивый эффект
-                setTimeout(() => tg.closeScanQrPopup(), 1000);
-            } else {
-                tg.showAlert("Недостаточно монет! Нужно еще " + (cost - money) + "💰");
-            }
+        function update() {
+            document.getElementById('m').innerText = Math.floor(s.money);
+            document.getElementById('b').innerText = s.bricks;
         }
 
-        function manualClick() {
-            bricks += 1;
-            money += 0.5; // За каждый кирпич немного денег
-            updateUI();
+        async function loadPlayers() {
+            try {
+                // Добавляем случайное число, чтобы браузер не брал старую версию файла
+                const res = await fetch('players.json?nocache=' + Math.random());
+                const data = await res.json();
+                const container = document.getElementById('player-list');
+                container.innerHTML = '';
+                data.forEach(p => {
+                    container.innerHTML += `<div class="card"><div><b>👤 ${p.username}</b><br><small>🧱 Кирпичей: ${p.bricks}</small></div><button class="btn btn-blue">ИНФО</button></div>`;
+                });
+            } catch(e) { console.log("Файл еще не готов"); }
         }
 
-        // ГЛАВНЫЙ ИГРОВОЙ ЦИКЛ (Каждую секунду)
-        setInterval(() => {
-            if (pps > 0) {
-                bricks += pps;
-                money += (pps * 0.2); // Боты приносят пассивный доход
-                updateUI();
-            }
-        }, 1000);
-
+        setInterval(() => { if(s.pps > 0) { s.bricks += s.pps; s.money += s.pps*0.2; update(); } }, 1000);
+        setInterval(loadPlayers, 10000); // Обновляем список игроков каждые 10 сек
+        loadPlayers();
     </script>
 </body>
 </html>
