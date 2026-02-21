@@ -2,48 +2,82 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Game App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #1a1a1a;
-            color: white;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
+        body { font-family: sans-serif; background: #0f0f0f; color: white; margin: 0; padding-bottom: 70px; }
+        .page { display: none; padding: 20px; text-align: center; }
+        .active { display: block; }
+        
+        /* Нижняя панель */
+        .navbar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #1c1c1c; display: flex; justify-content: space-around;
+            padding: 10px 0; border-top: 1px solid #333;
         }
-        .container { text-align: center; }
-        .balance { font-size: 2em; color: #f1c40f; margin-bottom: 20px; }
-        button {
-            padding: 15px 30px;
-            font-size: 1.2em;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-        }
+        .nav-item { color: #888; font-size: 12px; text-align: center; cursor: pointer; text-decoration: none; }
+        .nav-item.active-nav { color: #3498db; }
+        .icon { font-size: 24px; display: block; }
+
+        /* Стили для ресурсов */
+        .res-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+        .res-card { background: #222; padding: 10px; border-radius: 10px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>💰 Твой Кошелёк</h1>
-        <div class="balance" id="money">0</div>
-        <button onclick="showAlert()">Нажать!</button>
+
+    <div id="page1" class="page">
+        <h2>👥 Найм</h2>
+        <p>Здесь можно нанимать рабочих и ботов.</p>
+        <button onclick="buyWorker()">Нанять рабочего (50💰)</button>
+    </div>
+
+    <div id="page2" class="page active">
+        <h2>🏗 Моя Империя</h2>
+        <div class="res-grid">
+            <div class="res-card">💰 Валюта: <span id="money">100</span></div>
+            <div class="res-card">🪵 Дерево: <span id="wood">0</span></div>
+            <div class="res-card">🏗 Уровень: <span id="lvl">1</span></div>
+            <div class="res-card">❤️ Жизни: <span id="hp">100</span></div>
+        </div>
+        <p>Доход: +5/сек</p>
+    </div>
+
+    <div id="page3" class="page">
+        <h2>⚖️ Рынок</h2>
+        <p>Еда, медицина, стройматериалы.</p>
+        <button>Купить еду (10💰)</button>
+    </div>
+
+    <div id="page4" class="page">
+        <h2>⚙️ Настройки</h2>
+        <button onclick="tg.close()">Выход из игры</button>
+    </div>
+
+    <div class="navbar">
+        <div class="nav-item" onclick="showPage(1, this)"><span class="icon">👥</span>Найм</div>
+        <div class="nav-item active-nav" onclick="showPage(2, this)"><span class="icon">🏠</span>Главная</div>
+        <div class="nav-item" onclick="showPage(3, this)"><span class="icon">🛒</span>Рынок</div>
+        <div class="nav-item" onclick="showPage(4, this)"><span class="icon">⚙️</span>Опции</div>
     </div>
 
     <script>
-        // Инициализация WebApp
         let tg = window.Telegram.WebApp;
-        tg.expand(); // Расширяет окно на весь экран
+        tg.expand();
 
-        function showAlert() {
-            tg.showAlert("Кнопка нажата! Скоро здесь будет игра.");
+        function showPage(num, el) {
+            // Скрываем все страницы
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            // Показываем нужную
+            document.getElementById('page' + num).classList.add('active');
+            
+            // Обновляем иконки
+            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active-nav'));
+            el.classList.add('active-nav');
+        }
+
+        function buyWorker() {
+            tg.showConfirm("Нанять нового рабочего?");
         }
     </script>
 </body>
