@@ -6,39 +6,32 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --bg: #09090b; --card: #18181b; --accent: #3b82f6; --green: #10b981; --red: #ef4444; --text: #fafafa; --gold: #f59e0b; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 110px; user-select: none; overflow-x: hidden; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 110px; user-select: none; }
         
-        /* ШАПКА */
         .main-header { padding: 15px; text-align: center; background: var(--card); border-bottom: 1px solid #27272a; position: sticky; top: 0; z-index: 100; }
         .coins { font-size: 24px; color: var(--gold); font-weight: 900; }
         .corp-block { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 5px; }
         .player-avatar-main { width: 30px; height: 30px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--accent); font-size: 18px; }
 
-        /* РЕСУРСЫ */
         .res-row { display: grid; grid-template-columns: repeat(4, 1fr); background: #111; padding: 8px; font-size: 11px; border-bottom: 1px solid #27272a; }
         .res-item { text-align: center; }
 
-        /* СТРАНИЦЫ */
         .page { display: none; padding: 15px; animation: fadeIn 0.3s; }
         .active { display: block; }
 
-        /* СЕТКА РАБОЧИХ */
         .workers-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
         .worker-card { background: var(--card); border-radius: 12px; padding: 10px; text-align: center; position: relative; border: 1px solid #27272a; }
         .hp-bar { width: 100%; height: 4px; background: #333; margin-top: 8px; border-radius: 2px; overflow: hidden; }
         .hp-fill { background: var(--green); height: 100%; transition: 0.3s; }
+        .shield-icon { position: absolute; top: 5px; right: 5px; font-size: 12px; }
 
-        /* КНОПКИ И ИНПУТЫ */
         .btn { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: 700; cursor: pointer; margin-top: 5px; }
-        .btn:active { transform: scale(0.98); }
         input { background: #27272a; border: 1px solid var(--accent); color: white; padding: 12px; border-radius: 10px; width: 90%; margin-bottom: 10px; text-align: center; }
 
-        /* НАВИГАЦИЯ */
         .navbar { position: fixed; bottom: 0; width: 100%; background: #09090b; display: grid; grid-template-columns: repeat(6, 1fr); border-top: 1px solid #27272a; padding: 10px 0; z-index: 1000; }
-        .nav-item { text-align: center; color: #71717a; font-size: 9px; cursor: pointer; }
+        .nav-item { text-align: center; color: #71717a; font-size: 8px; cursor: pointer; }
         .active-nav { color: var(--accent); font-weight: bold; }
 
-        /* МОДАЛКА */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; }
         .modal-content { background: var(--card); width: 85%; padding: 20px; border-radius: 20px; text-align: center; border: 1px solid var(--accent); }
 
@@ -48,12 +41,12 @@
 <body>
 
     <div id="reg-screen" style="display: none; padding: 40px 20px; text-align: center;">
-        <h2>👑 Основание Королевства</h2>
-        <input type="text" id="reg-name" placeholder="Назовите ваше государство...">
-        <p>Выберите специализацию:</p>
-        <button class="btn" onclick="completeReg('Завод')">🧱 Завод (Кирпичи)</button>
-        <button class="btn" style="background:var(--green)" onclick="completeReg('Лаборатория')">🧪 Лаборатория (Мед)</button>
-        <button class="btn" style="background:var(--gold); color:black" onclick="completeReg('Ферма')">🍎 Ферма (Еда)</button>
+        <h2>👑 Новая Эра</h2>
+        <input type="text" id="reg-name" placeholder="Назовите королевство...">
+        <p>Выберите путь развития:</p>
+        <button class="btn" onclick="completeReg('Завод')">🧱 Завод</button>
+        <button class="btn" style="background:var(--green)" onclick="completeReg('Лаборатория')">🧪 Лаборатория</button>
+        <button class="btn" style="background:var(--gold); color:black" onclick="completeReg('Ферма')">🍎 Производство еды</button>
     </div>
 
     <div id="game-ui" style="display: none;">
@@ -61,7 +54,7 @@
             <span class="coins">💰 <span id="m-money">0</span></span>
             <div class="corp-block">
                 <div class="player-avatar-main">👨‍✈️</div>
-                <div id="m-corp-name" style="font-weight: bold; font-size: 14px; text-transform: uppercase;"></div>
+                <div id="m-corp-name" style="font-weight: bold; text-transform: uppercase;"></div>
             </div>
         </div>
 
@@ -73,44 +66,30 @@
         </div>
 
         <div id="p-city" class="page active">
-            <div style="background: linear-gradient(to right, #1e1b4b, #18181b); padding: 15px; border-radius: 15px; border: 1px solid var(--gold); text-align: center;">
-                УРОВЕНЬ <span id="m-city-name-display"></span>: <b id="m-city-lvl">1</b>
+            <div style="background: linear-gradient(135deg, #1e1b4b, #18181b); padding: 15px; border-radius: 15px; border: 1px solid var(--gold); text-align: center;">
+                <div style="font-size: 16px; color: var(--gold); font-weight: bold;">🏰 Уровень королевства: <span id="m-city-lvl-num">1</span></div>
+                <button class="btn" style="background: var(--gold); color: black; margin-top: 10px; font-size: 11px;" onclick="upgradeKingdom()">ПОВЫСИТЬ УРОВЕНЬ (500 💰 + 500 Рес.)</button>
             </div>
             <div id="workers-container" class="workers-grid"></div>
         </div>
 
         <div id="p-hire" class="page">
-            <h3>👥 Центр найма</h3>
-            <p>Стоимость контракта: 150 💰</p>
-            <button class="btn" onclick="hireWorker('bot')">Нанять Бота-рыцаря</button>
-            <button class="btn" style="opacity: 0.5;">Нанять Игрока (Скоро)</button>
+            <h3>👥 Найм</h3>
+            <button class="btn" onclick="hireWorker()">Нанять юнита (150 💰)</button>
         </div>
 
         <div id="p-market" class="page">
-            <h3>⚖️ Рынок (Курс 3 к 1)</h3>
-            <p>Обмен ресурсов на монеты</p>
+            <h3>⚖️ Рынок (3 к 1)</h3>
             <button class="btn" onclick="trade('res')">300 🧱 → 100 💰</button>
             <button class="btn" onclick="trade('med')">300 🧪 → 100 💰</button>
             <button class="btn" onclick="trade('food')">300 🍎 → 100 💰</button>
         </div>
 
-        <div id="p-forge" class="page">
-            <h3>🔨 Кузница</h3>
-            <p>Здесь вы сможете ковать броню и оружие.</p>
-            <div style="padding: 40px; border: 1px dashed #444; text-align: center;">Печь остыла... Нужны чертежи.</div>
-        </div>
+        <div id="p-forge" class="page"><h3>🔨 Кузница</h3><p>Создание брони и оружия (В разработке)</p></div>
 
-        <div id="p-arena" class="page">
-            <h3>⚔️ Арена</h3>
-            <button class="btn" style="background: var(--red)">Башня Испытаний</button>
-            <button class="btn" style="margin-top: 10px;">Битва с игроком</button>
-        </div>
+        <div id="p-arena" class="page"><h3>⚔️ Арена</h3><button class="btn" style="background: var(--red)">Башня испытаний</button></div>
 
-        <div id="p-settings" class="page">
-            <h3>⚙️ Настройки</h3>
-            <button class="btn" onclick="tg.showAlert('Функция кастомизации в разработке')">Изменить аватар</button>
-            <button class="btn" style="background: var(--red); margin-top: 50px;" onclick="resetGame()">Сбросить всё (DEBUG)</button>
-        </div>
+        <div id="p-settings" class="page"><h3>⚙️ Настройки</h3><button class="btn" style="background: var(--red)" onclick="resetGame()">СБРОС ПРОГРЕССА</button></div>
 
         <nav class="navbar">
             <div class="nav-item active-nav" onclick="showTab('city', this)">🏠<br>Город</div>
@@ -126,8 +105,7 @@
         <div class="modal-content">
             <div id="modal-icon" style="font-size: 50px;"></div>
             <h3 id="modal-title"></h3>
-            <div id="modal-lvl" style="color: var(--gold); font-weight: bold;"></div>
-            <p>Доход: +<span id="modal-inc"></span> ед/мин</p>
+            <p id="modal-lvl"></p>
             <button class="btn" style="background:#f97316" onclick="feedWorker()">🍎 Дать еду (10)</button>
             <button class="btn" style="background:var(--green)" onclick="healWorker()">🧪 Медицина (10)</button>
             <button class="btn" style="background:var(--gold); color:black" onclick="upgradeWorker()">⭐ УЛУЧШИТЬ (200💰 + 1✨)</button>
@@ -137,65 +115,45 @@
 
     <script>
         let tg = window.Telegram.WebApp;
-        const SAVE_KEY = 'KINGDOM_ROOT_SAVE';
+        const KEY = 'ULTRA_SAVE_V5';
         
-        let s = JSON.parse(localStorage.getItem(SAVE_KEY)) || {
+        let s = JSON.parse(localStorage.getItem(KEY)) || {
             money: 500, res: 100, med: 100, food: 100, art: 1, cityLvl: 1,
-            type: '', name: '', workers: [{ lvl: 1, hp: 100, xp: 0 }],
-            lastLogin: Date.now()
+            type: '', name: '', workers: [{ lvl: 1, hp: 100, shield: 0 }],
+            lastSave: Date.now()
         };
 
-        function save() { 
-            s.lastLogin = Date.now();
-            localStorage.setItem(SAVE_KEY, JSON.stringify(s)); 
-        }
+        function save() { s.lastSave = Date.now(); localStorage.setItem(KEY, JSON.stringify(s)); }
 
-        // АФК ФАРМ ПРИ ВХОДЕ
-        function initGame() {
-            if(!s.type) {
-                document.getElementById('reg-screen').style.display = 'block';
-            } else {
+        function init() {
+            if(!s.type) { document.getElementById('reg-screen').style.display = 'block'; } 
+            else {
                 document.getElementById('game-ui').style.display = 'block';
-                let diffSeconds = Math.floor((Date.now() - s.lastLogin) / 1000);
-                if(diffSeconds > 10) {
-                    let rate = s.workers.reduce((a, b) => a + b.lvl, 0) * 0.1;
-                    let gain = rate * diffSeconds;
-                    if(s.type === 'Завод') s.res += gain;
-                    else if(s.type === 'Лаборатория') s.med += gain;
-                    else s.food += gain;
-                    s.money += (rate * 0.5) * diffSeconds;
-                    tg.showAlert(`AFK доход за ${Math.floor(diffSeconds/60)} мин. получен!`);
+                // АФК ФАРМ
+                let diff = Math.floor((Date.now() - s.lastSave) / 1000);
+                if(diff > 10) {
+                    let income = s.workers.reduce((a, b) => a + b.lvl, 0) * 0.1 * diff;
+                    if(s.type === 'Завод') s.res += income;
+                    else if(s.type === 'Лаборатория') s.med += income;
+                    else s.food += income;
+                    s.money += (income * 0.5);
+                    tg.showAlert("АФК доход начислен!");
                 }
                 updateUI();
             }
         }
 
-        function completeReg(type) {
-            let name = document.getElementById('reg-name').value;
-            if(!name) return tg.showAlert("Введите название!");
-            s.name = name; s.type = type;
-            save();
-            location.reload();
+        function completeReg(t) {
+            let n = document.getElementById('reg-name').value;
+            if(!n) return;
+            s.name = n; s.type = t; save(); location.reload();
         }
 
         function showTab(p, el) {
-            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active-nav'));
+            document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active-nav'));
             document.getElementById('p-'+p).classList.add('active');
             el.classList.add('active-nav');
-        }
-
-        function renderWorkers() {
-            let container = document.getElementById('workers-container');
-            container.innerHTML = '';
-            s.workers.forEach((w, i) => {
-                let icon = i === 0 ? "👨‍✈️" : "🎖️";
-                container.innerHTML += `<div class="worker-card" onclick="openWorker(${i})">
-                    <div style="font-size:30px;">${icon}</div>
-                    <div style="font-size:10px; color:var(--gold)">Lvl ${w.lvl}</div>
-                    <div class="hp-bar"><div class="hp-fill" style="width:${w.hp}%"></div></div>
-                </div>`;
-            });
         }
 
         let selIdx = 0;
@@ -203,40 +161,42 @@
             selIdx = i;
             let w = s.workers[i];
             document.getElementById('modal-icon').innerText = i === 0 ? "👨‍✈️" : "🎖️";
-            document.getElementById('modal-title').innerText = i === 0 ? "Ваш Профиль" : "Рыцарь-бот";
-            document.getElementById('modal-lvl').innerText = "УРОВЕНЬ " + w.lvl;
-            document.getElementById('modal-inc').innerText = w.lvl * 5;
+            document.getElementById('modal-title').innerText = i === 0 ? "Капитан" : "Рекрут";
+            document.getElementById('modal-lvl').innerText = "Уровень: " + w.lvl;
             document.getElementById('worker-modal').style.display = 'flex';
         }
 
         function closeModal() { document.getElementById('worker-modal').style.display = 'none'; }
 
+        // ПРОВЕРКА ИЗ ПРАВИЛ: Не тратить ресурсы зря
         function feedWorker() {
-            if(s.food >= 10) { s.food -= 10; s.workers[selIdx].hp = Math.min(100, s.workers[selIdx].hp + 20); save(); updateUI(); closeModal(); }
+            let w = s.workers[selIdx];
+            if(w.hp >= 100) return tg.showAlert("HP уже 100%!");
+            if(s.food >= 10) { s.food -= 10; w.hp = Math.min(100, w.hp + 20); save(); updateUI(); closeModal(); }
         }
 
         function healWorker() {
-            if(s.med >= 10) { s.med -= 10; s.workers[selIdx].hp = 100; save(); updateUI(); closeModal(); }
+            let w = s.workers[selIdx];
+            if(w.hp >= 100 && w.shield >= 100) return tg.showAlert("Здоровье и щиты полны!");
+            if(s.med >= 10) { s.med -= 10; w.hp = 100; w.shield = 100; save(); updateUI(); closeModal(); }
         }
 
-        function upgradeWorker() {
-            if(s.money >= 200 && s.art >= 1) { 
-                s.money -= 200; s.art -= 1; s.workers[selIdx].lvl++; 
-                save(); updateUI(); closeModal(); 
-            } else { tg.showAlert("Мало ресурсов!"); }
+        function upgradeKingdom() {
+            let cost = 500;
+            let hasRes = (s.type === 'Завод' && s.res >= cost) || (s.type === 'Лаборатория' && s.med >= cost) || (s.type === 'Ферма' && s.food >= cost);
+            if(s.money >= cost && hasRes) {
+                s.money -= cost;
+                if(s.type === 'Завод') s.res -= cost; else if(s.type === 'Лаборатория') s.med -= cost; else s.food -= cost;
+                s.cityLvl++; save(); updateUI();
+            } else { tg.showAlert("Недостаточно ресурсов!"); }
         }
 
-        function trade(resType) {
-            if(s[resType] >= 300) { s[resType] -= 300; s.money += 100; save(); updateUI(); }
-            else { tg.showAlert("Нужно 300 ед. ресурса!"); }
+        function hireWorker() {
+            if(s.money >= 150) { s.money -= 150; s.workers.push({lvl: 1, hp: 100, shield: 0}); save(); updateUI(); }
         }
 
-        function hireWorker(type) {
-            if(s.money >= 150) { 
-                s.money -= 150; 
-                s.workers.push({lvl: 1, hp: 100, xp: 0}); 
-                save(); updateUI(); 
-            } else { tg.showAlert("Мало монет!"); }
+        function trade(type) {
+            if(s[type] >= 300) { s[type] -= 300; s.money += 100; save(); updateUI(); }
         }
 
         function updateUI() {
@@ -246,26 +206,32 @@
             document.getElementById('m-food').innerText = Math.floor(s.food);
             document.getElementById('m-art').innerText = s.art;
             document.getElementById('m-corp-name').innerText = s.name;
-            document.getElementById('m-city-name-display').innerText = s.name;
-            document.getElementById('m-city-lvl').innerText = s.cityLvl;
-            renderWorkers();
+            document.getElementById('m-city-lvl-num').innerText = s.cityLvl;
+            
+            let container = document.getElementById('workers-container');
+            container.innerHTML = '';
+            s.workers.forEach((w, i) => {
+                container.innerHTML += `<div class="worker-card" onclick="openWorker(${i})">
+                    ${w.shield > 0 ? '<span class="shield-icon">🛡️</span>' : ''}
+                    <div style="font-size:30px;">${i === 0 ? "👨‍✈️" : "🎖️"}</div>
+                    <div class="hp-bar"><div class="hp-fill" style="width:${w.hp}%"></div></div>
+                </div>`;
+            });
         }
 
         setInterval(() => {
             if(s.type) {
-                let income = s.workers.reduce((a, b) => a + b.lvl, 0) * 0.1;
-                if(s.type === 'Завод') s.res += income;
-                else if(s.type === 'Лаборатория') s.med += income;
-                else s.food += income;
-                s.money += income * 0.5;
-                s.workers.forEach(w => w.hp = Math.max(0, w.hp - 0.02));
+                let inc = s.workers.reduce((a, b) => a + b.lvl, 0) * 0.1;
+                if(s.type === 'Завод') s.res += inc; else if(s.type === 'Лаборатория') s.med += inc; else s.food += inc;
+                s.money += (inc * 0.2);
+                s.workers.forEach(w => { if(w.shield > 0) w.shield -= 0.1; else w.hp = Math.max(0, w.hp - 0.01); });
                 save();
             }
             updateUI();
         }, 1000);
 
         function resetGame() { localStorage.clear(); location.reload(); }
-        initGame();
+        init();
     </script>
 </body>
 </html>
