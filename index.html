@@ -68,11 +68,11 @@
 
     <div id="p-home" class="page active">
         <div id="setup-view" style="text-align:center; padding:20px;">
-            <h3>🏗️ Выбор Предприятия</h3>
-            <input type="text" id="corp-input" placeholder="Назовите фирму...">
-            <button class="btn" onclick="startWork('Завод')">🧱 Завод (Кирпичи)</button>
-            <button class="btn" style="background:var(--green)" onclick="startWork('Лаборатория')">🧪 Лаборатория (Мед)</button>
-            <button class="btn" style="background:var(--gold); color:black;" onclick="startWork('Ферма')">🍎 Ферма (Еда)</button>
+            <h3>🏗️ Регистрация Предприятия</h3>
+            <input type="text" id="corp-input" placeholder="Название фирмы...">
+            <button class="btn" onclick="startWork('Завод')">Завод (🧱)</button>
+            <button class="btn" style="background:var(--green)" onclick="startWork('Лаборатория')">Лаборатория (🧪)</button>
+            <button class="btn" style="background:var(--gold); color:black;" onclick="startWork('Ферма')">Ферма (🍎)</button>
         </div>
 
         <div id="work-ui" style="display:none">
@@ -84,9 +84,8 @@
         </div>
     </div>
 
-    <div id="p-battle" class="page"><h3>⚔️ Арена</h3><button class="btn" style="background:var(--red)" onclick="startFight()">БОЙ (+50💰 +1✨)</button><div id="battle-log"></div></div>
+    <div id="p-battle" class="page"><h3>⚔️ Арена</h3><button class="btn" style="background:var(--red)" onclick="startFight()">БОЙ (+50💰 +1✨)</button></div>
     <div id="p-hire" class="page"><h3>👥 Найм</h3><button class="btn" onclick="addNewWorker()">Нанять (150💰)</button></div>
-    <div id="p-settings" class="page"><h3>⚙️</h3><button class="btn" style="background:var(--red)" onclick="resetGame()">СБРОС</button></div>
 
     <div id="worker-modal" class="modal">
         <div class="modal-content">
@@ -94,9 +93,9 @@
             <h3 id="modal-name"></h3>
             <div id="modal-lvl" style="color:var(--gold);"></div>
             <div class="xp-bar"><div id="modal-xp-fill" class="xp-fill"></div></div>
-            <p>Доход: <b id="modal-inc">0</b> ед/мин</p>
-            <button class="btn" style="background:#f97316" onclick="feedWorker()">🍎 Еда (10)</button>
-            <button class="btn" style="background:var(--green)" onclick="healWorker()">🧪 Мед (10)</button>
+            <p>📦 Приносит: <b id="modal-inc">0</b> ед/мин</p>
+            <button class="btn" style="background:#f97316" onclick="feedWorker()">🍎 Дать еду (10)</button>
+            <button class="btn" style="background:var(--green)" onclick="healWorker()">🧪 Медикаменты (10)</button>
             <button class="btn" style="background:var(--gold); color:black" onclick="upgradeWorker()">⭐ УЛУЧШИТЬ (200💰 + 1✨)</button>
             <button class="btn" onclick="closeModal()">Закрыть</button>
         </div>
@@ -106,42 +105,18 @@
         <div class="nav-item active-nav" onclick="showTab('home', this)">🏠 База</div>
         <div class="nav-item" onclick="showTab('hire', this)">👥 Найм</div>
         <div class="nav-item" onclick="showTab('battle', this)">⚔️ Бой</div>
-        <div class="nav-item" onclick="showTab('settings', this)">⚙️</div>
     </nav>
 
     <script>
         let tg = window.Telegram.WebApp;
-        const KEY = 'ULTRA_STABLE_SAVE_V3';
+        const KEY = 'FINAL_ULTRA_SAVE';
         let s = JSON.parse(localStorage.getItem(KEY)) || { 
             money: 500, res: 100, med: 100, food: 100, artP: 1, cityLvl: 1, 
             type: '', corp: '', workers: [{ lvl: 1, hp: 100, shield: 0, xp: 0 }],
-            lastUpdate: Date.now()
+            lastSave: Date.now()
         };
 
-        function save() { s.lastUpdate = Date.now(); localStorage.setItem(KEY, JSON.stringify(s)); }
-
-        // АФК ФАРМ ПРИ ЗАХОДЕ
-        function checkAFK() {
-            let now = Date.now();
-            let diff = Math.floor((now - s.lastUpdate) / 1000); // Секунды отсутствия
-            if(diff > 5 && s.type) {
-                let incomePerSec = (s.workers.reduce((a, b) => a + b.lvl, 0) * 0.1);
-                let totalGain = incomePerSec * diff;
-                if(s.type === 'Завод') s.res += totalGain;
-                else if(s.type === 'Лаборатория') s.med += totalGain;
-                else s.food += totalGain;
-                s.money += (incomePerSec * 0.5) * diff;
-                tg.showAlert(`Пока вас не было, нафармлено ресурсов за ${Math.floor(diff/60)} мин!`);
-                save();
-            }
-        }
-
-        function showTab(name, el) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById('p-' + name).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active-nav'));
-            el.classList.add('active-nav');
-        }
+        function save() { s.lastSave = Date.now(); localStorage.setItem(KEY, JSON.stringify(s)); }
 
         function startWork(type) {
             let n = document.getElementById('corp-input').value;
@@ -168,7 +143,7 @@
             selIdx = i;
             let w = s.workers[i];
             document.getElementById('modal-avatar').innerText = i === 0 ? "👨‍✈️" : "🎖️";
-            document.getElementById('modal-name').innerText = i === 0 ? "Вы" : "Рыцарь";
+            document.getElementById('modal-name').innerText = i === 0 ? "Ваш профиль" : "Рабочий";
             document.getElementById('modal-lvl').innerText = "УРОВЕНЬ " + w.lvl;
             document.getElementById('modal-xp-fill').style.width = w.xp + "%";
             document.getElementById('modal-inc').innerText = Math.floor(w.lvl * 5);
@@ -177,20 +152,38 @@
 
         function closeModal() { document.getElementById('worker-modal').style.display = 'none'; }
 
+        // КНОПКА ЕДА (Исправлено)
+        function feedWorker() {
+            let w = s.workers[selIdx];
+            if (s.food >= 10 && w.hp < 100) {
+                s.food -= 10;
+                w.hp = Math.min(100, w.hp + 20);
+                save(); updateUI(); closeModal();
+            } else if (w.hp >= 100) {
+                tg.showAlert("Здоровье уже полное!");
+            } else {
+                tg.showAlert("Недостаточно еды!");
+            }
+        }
+
+        // КНОПКА МЕДИЦИНА (Исправлено)
+        function healWorker() {
+            let w = s.workers[selIdx];
+            if (s.med >= 10) {
+                s.med -= 10;
+                w.hp = 100;
+                w.shield = 100; // Добавляет щит
+                save(); updateUI(); closeModal();
+            } else {
+                tg.showAlert("Недостаточно медикаментов!");
+            }
+        }
+
         function upgradeWorker() {
             if (s.money >= 200 && s.artP >= 1) {
                 s.money -= 200; s.artP -= 1; s.workers[selIdx].lvl++; s.workers[selIdx].xp = 0;
                 save(); updateUI(); closeModal();
-            }
-        }
-
-        function startFight() {
-            if(Math.random() > 0.5) { s.money += 50; s.artP += 1; }
-            save(); updateUI();
-        }
-
-        function addNewWorker() {
-            if (s.money >= 150) { s.money -= 150; s.workers.push({ lvl: 1, hp: 100, shield: 0, xp: 0 }); save(); updateUI(); }
+            } else { tg.showAlert("Мало монет или артефактов!"); }
         }
 
         function updateUI() {
@@ -202,6 +195,7 @@
             if(s.corp) {
                 document.getElementById('m-corp-name').innerText = s.corp;
                 document.getElementById('m-corp-disp').innerText = s.corp;
+                document.getElementById('m-city-lvl').innerText = s.cityLvl;
                 document.getElementById('setup-view').style.display = 'none';
                 document.getElementById('work-ui').style.display = 'block';
             }
@@ -217,15 +211,19 @@
                 s.money += income * 0.5;
                 s.workers.forEach(w => {
                     w.xp = Math.min(100, w.xp + 0.1);
-                    if(w.shield > 0) w.shield--; else w.hp = Math.max(0, w.hp - 0.05);
+                    if(w.shield > 0) w.shield = Math.max(0, w.shield - 0.1); 
+                    else w.hp = Math.max(0, w.hp - 0.05);
                 });
                 save();
             }
             updateUI();
         }, 1000);
 
-        function resetGame() { localStorage.clear(); location.reload(); }
-        checkAFK();
+        function showTab(n, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('p-'+n).classList.add('active');
+        }
+
         updateUI();
     </script>
 </body>
