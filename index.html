@@ -8,14 +8,14 @@
         :root { --bg: #09090b; --card: #18181b; --accent: #3b82f6; --green: #10b981; --red: #ef4444; --text: #fafafa; --gold: #f59e0b; }
         body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 110px; user-select: none; overflow-x: hidden; }
         
-        /* ЭКРАН РЕГИСТРАЦИИ */
+        /* РЕГИСТРАЦИЯ */
         #reg-screen { position: fixed; top:0; left:0; width:100%; height:100%; background: var(--bg); z-index: 5000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
         .reg-card { background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid var(--accent); width: 100%; text-align: center; }
         .reg-input { width: 100%; padding: 12px; margin: 15px 0; border-radius: 10px; border: 1px solid #333; background: #000; color: white; text-align: center; font-size: 16px; }
         .type-btn { background: #27272a; border: 1px solid #3f3f46; padding: 10px; border-radius: 10px; margin: 5px; color: white; cursor: pointer; font-size: 12px; width: 100%; }
         .type-btn.selected { border-color: var(--accent); background: rgba(59,130,246,0.2); }
 
-        /* ОСНОВНОЙ ИНТЕРФЕЙС */
+        /* ШАПКА */
         .main-header { padding: 15px; text-align: center; background: var(--card); border-bottom: 1px solid #27272a; position: sticky; top: 0; z-index: 100; }
         .coins { font-size: 24px; color: var(--gold); font-weight: 900; }
         .corp-block { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 5px; }
@@ -27,9 +27,11 @@
         .page { display: none; padding: 15px; animation: fadeIn 0.3s; }
         .active { display: block; }
 
+        /* КАРТОЧКИ РАБОЧИХ */
         .workers-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
         .worker-card { background: var(--card); border-radius: 12px; padding: 10px; text-align: center; position: relative; border: 1px solid #27272a; }
         .shield-icon-top { position: absolute; top: 5px; right: 5px; font-size: 14px; animation: pulse 2s infinite; }
+        .shield-timer-text { font-size: 9px; color: var(--accent); display: block; margin-top: 4px; font-weight: bold; }
         
         .hp-bar { width: 100%; height: 4px; background: #333; margin-top: 8px; border-radius: 2px; overflow: hidden; }
         .hp-fill { background: var(--green); height: 100%; transition: 0.3s; }
@@ -51,16 +53,12 @@
     <div id="reg-screen">
         <div class="reg-card">
             <h2 style="margin-top:0">🏰 Новое Королевство</h2>
-            <p style="font-size: 12px; color: #a1a1aa;">Введите название (нельзя изменить):</p>
             <input type="text" id="reg-name" class="reg-input" placeholder="Название...">
-            
-            <p style="font-size: 12px; color: #a1a1aa; margin-top: 15px;">Выберите специализацию:</p>
             <div style="display: flex; flex-direction: column; gap: 5px;">
-                <button class="type-btn" id="t-Завод" onclick="selectType('Завод')">🧱 Завод (Ресурсы)</button>
+                <button class="type-btn selected" id="t-Завод" onclick="selectType('Завод')">🧱 Завод (Ресурсы)</button>
                 <button class="type-btn" id="t-Лаборатория" onclick="selectType('Лаборатория')">🧪 Лаборатория (Медицина)</button>
                 <button class="type-btn" id="t-Продбаза" onclick="selectType('Продбаза')">🍎 Продбаза (Еда)</button>
             </div>
-            
             <button class="btn" style="margin-top: 25px; background: var(--green);" onclick="finishReg()">НАЧАТЬ ПРАВЛЕНИЕ</button>
         </div>
     </div>
@@ -89,11 +87,22 @@
             <div id="workers-container" class="workers-grid"></div>
         </div>
 
-        <div id="p-hire" class="page"><h3>👥 Найм</h3><button class="btn" onclick="hireWorker()">Нанять (150 💰)</button></div>
-        <div id="p-market" class="page"><h3>⚖️ Рынок</h3><button class="btn" onclick="trade('res')">300 🧱 → 100 💰</button><button class="btn" style="background:var(--green)" onclick="trade('med')">300 🧪 → 100 💰</button></div>
+        <div id="p-hire" class="page">
+            <h3 style="text-align:center">👥 Казармы</h3>
+            <div class="hire-card" style="background: var(--card); padding:15px; border-radius:15px; border:1px solid #333; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                <div><b>Рядовой</b><br><small>Доход: +0.1/сек</small></div>
+                <button class="btn" style="width:auto; margin:0" onclick="hireWorker(150, 1)">150 💰</button>
+            </div>
+            <div class="hire-card" style="background: var(--card); padding:15px; border-radius:15px; border:1px solid var(--gold); margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
+                <div><b>Ветеран</b><br><small>Доход: +0.2/сек</small></div>
+                <button class="btn" style="width:auto; margin:0; background:var(--gold); color:black" onclick="hireWorker(500, 2)">500 💰</button>
+            </div>
+        </div>
+
+        <div id="p-market" class="page"><h3>⚖️ Рынок</h3><button class="btn" onclick="trade('res')">300 🧱 → 100 💰</button></div>
         <div id="p-forge" class="page"><h3>🔨 Кузня</h3></div>
         <div id="p-arena" class="page"><h3>⚔️ Арена</h3></div>
-        <div id="p-settings" class="page"><h3>⚙️ Опции</h3><button class="btn" style="background:var(--red)" onclick="localStorage.clear(); location.reload();">СБРОС ПЕРСОНАЖА</button></div>
+        <div id="p-settings" class="page"><h3>⚙️ Опции</h3><button class="btn" style="background:var(--red)" onclick="localStorage.clear(); location.reload();">СБРОС</button></div>
 
         <nav class="navbar">
             <div class="nav-item active-nav" onclick="showTab('city', this)">🏠<br>Город</div>
@@ -113,17 +122,15 @@
             <button class="btn" style="background:#f97316" onclick="feedWorker()">🍎 Еда (10)</button>
             <button class="btn" style="background:var(--green)" onclick="openMedMenu()">🧪 Медицина</button>
             <button class="btn" style="background:var(--gold); color:black" onclick="upgradeWorker()">⭐ УЛУЧШИТЬ (200💰 + 1✨)</button>
-            <button class="btn" style="background:#444; margin-top:10px;" onclick="closeModal()">Закрыть</button>
+            <button class="btn" style="background:#444" onclick="closeModal()">Закрыть</button>
         </div>
     </div>
 
     <div id="med-modal" class="modal">
         <div class="modal-content">
-            <h3>🧪 Слайдер Защиты</h3>
+            <h3>🧪 Добавить защиту</h3>
             <input type="range" id="med-slider" min="10" max="1000" step="10" value="10" oninput="updateMedCalc()">
-            <div style="margin: 15px 0; background:#111; padding:10px; border-radius:10px;">
-                Трата: <b id="calc-med-cost">10</b> 🧪 | +<b id="calc-med-time">1</b> мин
-            </div>
+            <div style="margin: 15px 0;">Трата: <b id="calc-med-cost">10</b> 🧪 | +<b id="calc-med-time">1</b> мин</div>
             <button class="btn" onclick="confirmMed()">ПРИМЕНИТЬ</button>
             <button class="btn" style="background:#444" onclick="closeMedMenu()">ОТМЕНА</button>
         </div>
@@ -131,19 +138,15 @@
 
     <script>
         let tg = window.Telegram.WebApp;
-        const KEY = 'KINGDOM_V_12_REG';
+        const KEY = 'KINGDOM_V_13_FIXED_TIME';
         let s = null;
         let selectedType = 'Завод';
+        let selIdx = 0;
 
-        // 1. ПРОВЕРКА РЕГИСТРАЦИИ
         function init() {
             const data = localStorage.getItem(KEY);
-            if (!data) {
-                document.getElementById('reg-screen').style.display = 'flex';
-            } else {
-                s = JSON.parse(data);
-                startApp();
-            }
+            if (!data) { document.getElementById('reg-screen').style.display = 'flex'; }
+            else { s = JSON.parse(data); startApp(); }
         }
 
         function selectType(t) {
@@ -154,35 +157,21 @@
 
         function finishReg() {
             let name = document.getElementById('reg-name').value.trim();
-            if (name.length < 3) return tg.showAlert("Название слишком короткое!");
-            
-            s = {
-                money: 1000, res: 500, med: 500, food: 500, art: 5, cityLvl: 1,
-                type: selectedType, name: name, 
-                workers: [{ lvl: 1, hp: 100, shield: 0 }],
-                lastSave: Date.now()
-            };
-            save();
-            document.getElementById('reg-screen').style.display = 'none';
-            startApp();
+            if (name.length < 3) return tg.showAlert("Слишком короткое имя!");
+            s = { money: 1000, res: 500, med: 500, food: 500, art: 5, cityLvl: 1, type: selectedType, name: name, workers: [{ lvl: 1, hp: 100, shield: 0 }], lastSave: Date.now() };
+            save(); document.getElementById('reg-screen').style.display = 'none'; startApp();
         }
 
-        // 2. ЗАПУСК ИГРЫ
         function startApp() {
             document.getElementById('main-ui').style.display = 'block';
-            
-            // АФК доход
             let diff = Math.floor((Date.now() - s.lastSave) / 1000);
             if(diff > 5) {
                 let gain = s.workers.reduce((a, b) => a + b.lvl, 0) * 0.1 * diff;
-                if(s.type === 'Завод') s.res += gain; 
-                else if(s.type === 'Лаборатория') s.med += gain; 
-                else s.food += gain;
+                if(s.type === 'Завод') s.res += gain; else if(s.type === 'Лаборатория') s.med += gain; else s.food += gain;
                 s.money += gain * 0.2;
+                s.workers.forEach(w => { let sd = Math.min(w.shield, diff); w.shield -= sd; let rem = diff - sd; if(rem > 0) w.hp = Math.max(0, w.hp - (rem * 0.01)); });
             }
-            
-            setInterval(tick, 1000);
-            updateUI();
+            setInterval(tick, 1000); updateUI();
         }
 
         function save() { s.lastSave = Date.now(); localStorage.setItem(KEY, JSON.stringify(s)); }
@@ -191,9 +180,7 @@
             let inc = s.workers.reduce((a, b) => a + b.lvl, 0) * 0.1;
             if(s.type === 'Завод') s.res += inc; else if(s.type === 'Лаборатория') s.med += inc; else s.food += inc;
             s.money += inc * 0.2;
-            s.workers.forEach(w => {
-                if(w.shield > 0) w.shield--; else w.hp = Math.max(0, w.hp - 0.01);
-            });
+            s.workers.forEach(w => { if(w.shield > 0) w.shield--; else w.hp = Math.max(0, w.hp - 0.01); });
             save(); updateUI();
         }
 
@@ -209,16 +196,24 @@
             let container = document.getElementById('workers-container');
             container.innerHTML = '';
             s.workers.forEach((w, i) => {
+                let minutes = Math.ceil(w.shield / 60);
                 container.innerHTML += `<div class="worker-card" onclick="openWorker(${i})">
                     ${w.shield > 0 ? `<div class="shield-icon-top">🛡️</div>` : ''}
                     <div style="font-size:30px;">${i === 0 ? "👨‍✈️" : "🎖️"}</div>
                     <div style="font-size:10px; color:var(--gold)">LVL ${w.lvl}</div>
                     <div class="hp-bar"><div class="hp-fill" style="width:${w.hp}%"></div></div>
+                    ${w.shield > 0 ? `<span class="shield-timer-text">🛡️ ${minutes} мин</span>` : ''}
                 </div>`;
             });
         }
 
-        // ФУНКЦИИ КНОПОК
+        function hireWorker(cost, level) {
+            let limit = s.cityLvl * 3;
+            if (s.workers.length >= limit) return tg.showAlert("Лимит юнитов! Улучшите город.");
+            if (s.money >= cost) { s.money -= cost; s.workers.push({ lvl: level, hp: 100, shield: 0 }); save(); updateUI(); }
+            else tg.showAlert("Мало монет!");
+        }
+
         function upgradeKingdom() {
             let cost = 500;
             let currentRes = (s.type === 'Завод') ? s.res : (s.type === 'Лаборатория' ? s.med : s.food);
@@ -226,55 +221,22 @@
                 s.money -= cost;
                 if(s.type === 'Завод') s.res -= cost; else if(s.type === 'Лаборатория') s.med -= cost; else s.food -= cost;
                 s.cityLvl++; save(); updateUI();
-                tg.showAlert("Город улучшен!");
-            } else tg.showAlert("Недостаточно ресурсов!");
+            } else tg.showAlert("Нужно 500 монет и 500 ресурсов!");
         }
 
         function trade(t) { if(s[t]>=300){s[t]-=300; s.money+=100; save(); updateUI();}}
-        
-        let selIdx = 0;
-        function openWorker(i) {
-            selIdx = i;
-            let w = s.workers[i];
-            document.getElementById('modal-icon').innerText = i === 0 ? "👨‍✈️" : "🎖️";
-            document.getElementById('modal-title').innerText = i === 0 ? "Капитан" : "Рекрут";
-            document.getElementById('modal-lvl-text').innerText = "Уровень: " + w.lvl;
-            document.getElementById('worker-modal').style.display = 'flex';
-        }
-
+        function openWorker(i) { selIdx = i; let w = s.workers[i]; document.getElementById('modal-icon').innerText = i === 0 ? "👨‍✈️" : "🎖️"; document.getElementById('modal-title').innerText = i === 0 ? "Капитан" : "Рекрут"; document.getElementById('modal-lvl-text').innerText = "Уровень: " + w.lvl; document.getElementById('worker-modal').style.display = 'flex'; }
         function openMedMenu() { document.getElementById('med-modal').style.display = 'flex'; }
-        function updateMedCalc() { 
-            let v = document.getElementById('med-slider').value; 
-            document.getElementById('calc-med-cost').innerText = v;
-            document.getElementById('calc-med-time').innerText = v/10;
-        }
+        function updateMedCalc() { let v = document.getElementById('med-slider').value; document.getElementById('calc-med-cost').innerText = v; document.getElementById('calc-med-time').innerText = v/10; }
         function confirmMed() {
             let v = parseInt(document.getElementById('med-slider').value);
-            if(s.med >= v) {
-                s.med -= v; s.workers[selIdx].hp = 100; s.workers[selIdx].shield += (v/10)*60;
-                save(); updateUI(); document.getElementById('med-modal').style.display='none'; closeModal();
-            }
+            if(s.med >= v) { s.med -= v; s.workers[selIdx].hp = 100; s.workers[selIdx].shield += (v/10)*60; save(); updateUI(); closeMedMenu(); closeModal(); }
         }
-        function upgradeWorker() {
-            if(s.money>=200 && s.art>=1) {
-                s.money-=200; s.art-=1; s.workers[selIdx].lvl++;
-                save(); updateUI(); closeModal();
-            }
-        }
-        function feedWorker() {
-            let w = s.workers[selIdx];
-            if(w.hp<100 && s.food>=10) { s.food-=10; w.hp=Math.min(100, w.hp+20); save(); updateUI(); closeModal(); }
-        }
-
+        function upgradeWorker() { if(s.money>=200 && s.art>=1) { s.money-=200; s.art-=1; s.workers[selIdx].lvl++; save(); updateUI(); closeModal(); }}
+        function feedWorker() { let w = s.workers[selIdx]; if(w.hp<100 && s.food>=10) { s.food-=10; w.hp=Math.min(100, w.hp+20); save(); updateUI(); closeModal(); }}
         function closeModal() { document.getElementById('worker-modal').style.display = 'none'; }
         function closeMedMenu() { document.getElementById('med-modal').style.display = 'none'; }
-        function showTab(p, el) {
-            document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active-nav'));
-            document.getElementById('p-'+p).classList.add('active');
-            el.classList.add('active-nav');
-        }
-        function hireWorker() { if(s.money>=150){s.money-=150; s.workers.push({lvl:1, hp:100, shield:0}); save(); updateUI();}}
+        function showTab(p, el) { document.querySelectorAll('.page').forEach(x => x.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active-nav')); document.getElementById('p-'+p).classList.add('active'); el.classList.add('active-nav'); }
 
         init();
     </script>
