@@ -21,12 +21,15 @@
 
         .workers-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
         .worker-card { background: var(--card); border-radius: 12px; padding: 10px; text-align: center; position: relative; border: 1px solid #27272a; }
+        
+        /* ЗНАЧОК ЗАЩИТЫ СПРАВА СВЕРХУ */
+        .shield-icon-top { position: absolute; top: 5px; right: 5px; font-size: 14px; animation: pulse 2s infinite; }
+        .shield-timer-text { font-size: 8px; color: var(--accent); display: block; margin-top: 2px; }
+
         .hp-bar { width: 100%; height: 4px; background: #333; margin-top: 8px; border-radius: 2px; overflow: hidden; }
         .hp-fill { background: var(--green); height: 100%; transition: 0.3s; }
-        .shield-label { font-size: 9px; color: var(--accent); margin-top: 4px; display: block; font-weight: bold; }
 
         .btn { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: 700; cursor: pointer; margin-top: 5px; }
-        .btn:active { opacity: 0.7; }
         input[type="range"] { width: 100%; margin: 15px 0; accent-color: var(--accent); }
 
         .navbar { position: fixed; bottom: 0; width: 100%; background: #09090b; display: grid; grid-template-columns: repeat(6, 1fr); border-top: 1px solid #27272a; padding: 10px 0; z-index: 1000; }
@@ -36,6 +39,7 @@
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; }
         .modal-content { background: var(--card); width: 85%; padding: 20px; border-radius: 20px; text-align: center; border: 1px solid var(--accent); }
 
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
@@ -46,7 +50,7 @@
             <span class="coins">💰 <span id="m-money">0</span></span>
             <div class="corp-block">
                 <div class="player-avatar-main">👨‍✈️</div>
-                <div id="m-corp-name" style="font-weight: bold; text-transform: uppercase;">ЗАГРУЗКА...</div>
+                <div id="m-corp-name-display" style="font-weight: bold; text-transform: uppercase;"></div>
             </div>
         </div>
 
@@ -71,15 +75,15 @@
         </div>
 
         <div id="p-market" class="page">
-            <h3>⚖️ Рынок (Курс 3 к 1)</h3>
+            <h3>⚖️ Рынок (3 к 1)</h3>
             <button class="btn" onclick="trade('res')">300 🧱 → 100 💰</button>
             <button class="btn" style="background:var(--green)" onclick="trade('med')">300 🧪 → 100 💰</button>
             <button class="btn" style="background:var(--gold); color:black" onclick="trade('food')">300 🍎 → 100 💰</button>
         </div>
 
-        <div id="p-forge" class="page"><h3>🔨 Кузня</h3><p>В разработке...</p></div>
-        <div id="p-arena" class="page"><h3>⚔️ Арена</h3><p>Скоро битвы!</p></div>
-        <div id="p-settings" class="page"><h3>⚙️ Опции</h3><button class="btn" style="background:var(--red)" onclick="localStorage.clear(); location.reload();">СБРОС ИГРЫ</button></div>
+        <div id="p-forge" class="page"><h3>🔨 Кузня</h3></div>
+        <div id="p-arena" class="page"><h3>⚔️ Арена</h3></div>
+        <div id="p-settings" class="page"><h3>⚙️ Опции</h3><button class="btn" style="background:var(--red)" onclick="localStorage.clear(); location.reload();">СБРОС</button></div>
 
         <nav class="navbar">
             <div class="nav-item active-nav" onclick="showTab('city', this)">🏠<br>Город</div>
@@ -105,23 +109,24 @@
 
     <div id="med-modal" class="modal">
         <div class="modal-content">
-            <h3>🧪 Выбор дозировки</h3>
+            <h3>🧪 Добавить защиту</h3>
             <input type="range" id="med-slider" min="10" max="1000" step="10" value="10" oninput="updateMedCalc()">
             <div style="margin: 10px 0;">
-                Трата: <b id="calc-med-cost">10</b> 🧪<br>
-                Защита: +<b id="calc-med-time">1</b> мин.
+                Расход: <b id="calc-med-cost">10</b> 🧪<br>
+                Добавится: +<b id="calc-med-time">1</b> мин.
             </div>
-            <button class="btn" onclick="confirmMed()">ПРИМЕНИТЬ</button>
+            <button class="btn" onclick="confirmMed()">ПОДТВЕРДИТЬ</button>
             <button class="btn" style="background:#444" onclick="closeMedMenu()">ОТМЕНА</button>
         </div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
-        const KEY = 'KINGDOM_V_PRO_9';
+        const KEY = 'KINGDOM_V_10_FIX';
+        
         let s = JSON.parse(localStorage.getItem(KEY)) || {
-            money: 600, res: 500, med: 500, food: 500, art: 2, cityLvl: 1,
-            type: 'Завод', name: 'Моя Империя', workers: [{ lvl: 1, hp: 100, shield: 0 }],
+            money: 600, res: 500, med: 500, food: 500, art: 5, cityLvl: 1,
+            type: 'Завод', name: 'Империя', workers: [{ lvl: 1, hp: 100, shield: 0 }],
             lastSave: Date.now()
         };
 
@@ -133,7 +138,9 @@
             document.getElementById('m-med').innerText = Math.floor(s.med);
             document.getElementById('m-food').innerText = Math.floor(s.food);
             document.getElementById('m-art').innerText = s.art;
-            document.getElementById('m-corp-name').innerText = s.name;
+            
+            // ИСПРАВЛЕННОЕ ОТОБРАЖЕНИЕ ИМЕНИ
+            document.getElementById('m-corp-name-display').innerText = s.name;
             document.getElementById('m-city-lvl-num').innerText = s.cityLvl;
             
             let container = document.getElementById('workers-container');
@@ -141,47 +148,37 @@
             s.workers.forEach((w, i) => {
                 let m = Math.ceil(w.shield / 60);
                 container.innerHTML += `<div class="worker-card" onclick="openWorker(${i})">
+                    ${w.shield > 0 ? `<div class="shield-icon-top">🛡️</div>` : ''}
+                    
                     <div style="font-size:30px;">${i === 0 ? "👨‍✈️" : "🎖️"}</div>
+                    <div style="font-size:10px; color:var(--gold)">Lvl ${w.lvl}</div>
                     <div class="hp-bar"><div class="hp-fill" style="width:${w.hp}%"></div></div>
-                    ${w.shield > 0 ? `<span class="shield-label">🛡️ ${m}м</span>` : ''}
+                    ${w.shield > 0 ? `<span class="shield-timer-text">${m} мин</span>` : ''}
                 </div>`;
             });
         }
 
-        // КНОПКА УЛУЧШЕНИЯ КОРОЛЕВСТВА
         function upgradeKingdom() {
             let cost = 500;
             let currentRes = (s.type === 'Завод') ? s.res : (s.type === 'Лаборатория' ? s.med : s.food);
-            
             if(s.money >= cost && currentRes >= cost) {
                 s.money -= cost;
                 if(s.type === 'Завод') s.res -= cost; 
                 else if(s.type === 'Лаборатория') s.med -= cost; 
                 else s.food -= cost;
-                
-                s.cityLvl++;
-                save(); updateUI();
-                tg.showAlert("Уровень города повышен!");
-            } else {
-                tg.showAlert("Нужно 500 монет и 500 ед. твоего ресурса!");
-            }
+                s.cityLvl++; save(); updateUI();
+                tg.showAlert("Город улучшен!");
+            } else { tg.showAlert("Не хватает ресурсов!"); }
         }
 
-        // РЫНОК
         function trade(type) {
-            if(s[type] >= 300) {
-                s[type] -= 300;
-                s.money += 100;
-                save(); updateUI();
-            } else {
-                tg.showAlert("Недостаточно ресурсов (нужно 300)!");
-            }
+            if(s[type] >= 300) { s[type] -= 300; s.money += 100; save(); updateUI(); }
+            else { tg.showAlert("Нужно 300 ресурсов!"); }
         }
 
-        // МЕДИЦИНА
         function openMedMenu() {
             let w = s.workers[selIdx];
-            if(w.hp >= 100 && w.shield > 6000) return tg.showAlert("Защита на максимуме!");
+            if(w.hp >= 100 && w.shield > 10000) return tg.showAlert("Защита полная!");
             document.getElementById('med-modal').style.display = 'flex';
         }
 
@@ -196,24 +193,18 @@
             if(s.med >= val) {
                 s.med -= val;
                 s.workers[selIdx].hp = 100;
-                s.workers[selIdx].shield += (val / 10) * 60; // ПЛЮСУЕМ ВРЕМЯ
-                save(); updateUI();
-                document.getElementById('med-modal').style.display = 'none';
-                closeModal();
+                s.workers[selIdx].shield += (val / 10) * 60;
+                save(); updateUI(); closeMedMenu(); closeModal();
             }
         }
 
-        // УЛУЧШЕНИЕ РАБОЧЕГО
         function upgradeWorker() {
             if(s.money >= 200 && s.art >= 1) {
                 s.money -= 200; s.art -= 1;
                 s.workers[selIdx].lvl++;
-                save(); updateUI();
-                document.getElementById('modal-lvl-text').innerText = "Уровень: " + s.workers[selIdx].lvl;
+                save(); updateUI(); closeModal();
                 tg.showAlert("Улучшено!");
-            } else {
-                tg.showAlert("Не хватает монет или артефактов!");
-            }
+            } else { tg.showAlert("Недостаточно ресурсов!"); }
         }
 
         let selIdx = 0;
@@ -226,6 +217,7 @@
             document.getElementById('worker-modal').style.display = 'flex';
         }
 
+        function closeMedMenu() { document.getElementById('med-modal').style.display = 'none'; }
         function closeModal() { document.getElementById('worker-modal').style.display = 'none'; }
         function showTab(p, el) {
             document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
@@ -238,9 +230,9 @@
         function feedWorker() { 
             let w = s.workers[selIdx];
             if(w.hp < 100 && s.food >= 10) { s.food -= 10; w.hp = Math.min(100, w.hp + 20); save(); updateUI(); closeModal(); }
+            else { tg.showAlert("HP полно или мало еды!"); }
         }
 
-        // ГЛАВНЫЙ ЦИКЛ
         setInterval(() => {
             let totalLvl = s.workers.reduce((a, b) => a + b.lvl, 0);
             let inc = totalLvl * 0.1;
@@ -252,12 +244,12 @@
             save(); updateUI();
         }, 1000);
 
-        // АФК
+        // AFK logic
         (function() {
             let diff = Math.floor((Date.now() - s.lastSave) / 1000);
-            if(diff > 10) {
-                let totalLvl = s.workers.reduce((a, b) => a + b.lvl, 0);
-                let gain = totalLvl * 0.1 * diff;
+            if(diff > 5) {
+                let tLvl = s.workers.reduce((a, b) => a + b.lvl, 0);
+                let gain = tLvl * 0.1 * diff;
                 if(s.type === 'Завод') s.res += gain; else if(s.type === 'Лаборатория') s.med += gain; else s.food += gain;
                 s.money += gain * 0.2;
             }
