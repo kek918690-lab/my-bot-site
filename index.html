@@ -8,42 +8,40 @@
         :root { --bg: #09090b; --card: #18181b; --accent: #3b82f6; --green: #10b981; --red: #ef4444; --text: #fafafa; --gold: #f59e0b; }
         body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 110px; user-select: none; overflow-x: hidden; }
         
-        /* ШАПКА */
-        .main-header { padding: 15px; text-align: center; background: var(--card); border-bottom: 1px solid #27272a; position: sticky; top: 0; z-index: 100; }
-        .coins { font-size: 24px; color: var(--gold); font-weight: 900; }
-        .corp-block { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 5px; }
+        .main-header { padding: 12px; text-align: center; background: var(--card); border-bottom: 1px solid #27272a; position: sticky; top: 0; z-index: 100; }
+        .coins { font-size: 22px; color: var(--gold); font-weight: 900; }
+        .corp-block { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
         
         .res-row { display: grid; grid-template-columns: repeat(4, 1fr); background: #111; padding: 8px; font-size: 11px; border-bottom: 1px solid #27272a; }
         .res-item { text-align: center; }
 
-        .page { display: none; padding: 15px; animation: fadeIn 0.3s; }
+        .page { display: none; padding: 12px; animation: fadeIn 0.3s; }
         .active { display: block; }
 
-        /* КАРТОЧКИ РАБОЧИХ (КРУПНЫЕ) */
-        .workers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
+        /* ОБНОВЛЕННЫЕ КАРТОЧКИ (КОМПАКТНЕЕ) */
+        .workers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
         .worker-card { 
             background: var(--card); 
-            border-radius: 18px; 
-            padding: 18px; 
+            border-radius: 14px; 
+            padding: 12px; 
             text-align: center; 
             position: relative; 
             border: 1px solid #27272a; 
-            min-height: 160px; 
+            min-height: 130px; 
             display: flex; 
             flex-direction: column; 
             align-items: center; 
             justify-content: center;
         }
         
-        .shield-icon-top { position: absolute; top: 10px; right: 10px; font-size: 18px; }
+        .shield-icon-top { position: absolute; top: 8px; right: 8px; font-size: 14px; }
+        .income-badge { font-size: 10px; color: var(--green); margin-top: 6px; font-weight: bold; }
+        .shield-timer-info { font-size: 9px; color: var(--accent); margin-top: 4px; background: rgba(59,130,246,0.1); padding: 2px 6px; border-radius: 6px; }
         
-        .income-badge { font-size: 11px; color: var(--green); margin-top: 8px; font-weight: bold; }
-        .shield-timer-info { font-size: 10px; color: var(--accent); margin-top: 5px; background: rgba(59,130,246,0.1); padding: 4px 8px; border-radius: 8px; }
-        
-        .hp-bar { width: 100%; height: 6px; background: #333; margin-top: 12px; border-radius: 3px; overflow: hidden; }
+        .hp-bar { width: 100%; height: 4px; background: #333; margin-top: 8px; border-radius: 2px; overflow: hidden; }
         .hp-fill { background: var(--green); height: 100%; transition: 0.3s; }
 
-        .btn { background: var(--accent); color: white; border: none; padding: 12px; border-radius: 10px; width: 100%; font-weight: 700; cursor: pointer; margin-top: 5px; }
+        .btn { background: var(--accent); color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; font-weight: 700; cursor: pointer; margin-top: 5px; font-size: 13px; }
         .navbar { position: fixed; bottom: 0; width: 100%; background: #09090b; display: grid; grid-template-columns: repeat(6, 1fr); border-top: 1px solid #27272a; padding: 10px 0; z-index: 1000; }
         .nav-item { text-align: center; color: #71717a; font-size: 8px; cursor: pointer; }
         .active-nav { color: var(--accent); font-weight: bold; }
@@ -59,11 +57,11 @@
     <div id="reg-screen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:9999; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
         <div style="background:var(--card); padding:20px; border-radius:20px; border:1px solid var(--accent); width:100%; text-align:center;">
             <h2>🏰 Основание</h2>
-            <input type="text" id="reg-name" style="width:100%; padding:12px; margin:10px 0; border-radius:10px; border:1px solid #333; background:#000; color:white;" placeholder="Имя королевства...">
+            <input type="text" id="reg-name" style="width:100%; padding:12px; margin:10px 0; border-radius:10px; border:1px solid #333; background:#000; color:white;" placeholder="Имя...">
             <select id="reg-type" style="width:100%; padding:12px; margin:10px 0; border-radius:10px; background:#000; color:white;">
-                <option value="Завод">🧱 Завод (Ресурсы)</option>
-                <option value="Лаборатория">🧪 Лаборатория (Медицина)</option>
-                <option value="Продбаза">🍎 Продбаза (Еда)</option>
+                <option value="Завод">🧱 Завод</option>
+                <option value="Лаборатория">🧪 Лаборатория</option>
+                <option value="Продбаза">🍎 Продбаза</option>
             </select>
             <button class="btn" onclick="finishReg()">СОЗДАТЬ</button>
         </div>
@@ -73,7 +71,7 @@
         <div class="main-header">
             <span class="coins">💰 <span id="m-money">0</span></span>
             <div class="corp-block">
-                <div id="m-name-top" style="font-weight: bold; text-transform: uppercase; letter-spacing: 1px;"></div>
+                <div id="m-name-top" style="font-weight: bold; text-transform: uppercase; font-size: 14px;"></div>
             </div>
         </div>
 
@@ -85,23 +83,23 @@
         </div>
 
         <div id="p-city" class="page active">
-            <div style="background: var(--card); padding: 15px; border-radius: 15px; border: 1px solid var(--gold); text-align: center; margin-bottom: 10px;">
-                <div id="m-city-info" style="font-size: 14px; color: var(--gold); font-weight: bold;"></div>
-                <button class="btn" style="background: var(--gold); color: black; margin-top: 8px;" onclick="upgradeKingdom()">УЛУЧШИТЬ ГОРОД (500💰)</button>
+            <div style="background: var(--card); padding: 12px; border-radius: 12px; border: 1px solid var(--gold); text-align: center; margin-bottom: 10px;">
+                <div id="m-city-info" style="font-size: 13px; color: var(--gold); font-weight: bold;"></div>
+                <button class="btn" style="background: var(--gold); color: black; margin-top: 6px;" onclick="upgradeKingdom()">УЛУЧШИТЬ ГОРОД (500💰)</button>
             </div>
             <div id="workers-container" class="workers-grid"></div>
         </div>
 
         <div id="p-hire" class="page">
-            <h3 style="text-align:center">👥 Казармы найма</h3>
-            <button class="btn" onclick="hireWorker(150, 1)">Нанять Новичка (150 💰)</button>
-            <button class="btn" style="background:var(--gold); color:black" onclick="hireWorker(500, 2)">Нанять Ветерана (500 💰)</button>
+            <h3 style="text-align:center">👥 Казармы</h3>
+            <button class="btn" onclick="hireWorker(150, 1)">Новичок (150 💰)</button>
+            <button class="btn" style="background:var(--gold); color:black" onclick="hireWorker(500, 2)">Ветеран (500 💰)</button>
         </div>
 
         <div id="p-market" class="page"><h3>⚖️ Рынок</h3><button class="btn" onclick="trade('res')">300 🧱 → 100 💰</button></div>
         <div id="p-forge" class="page"><h3>🔨 Кузня</h3></div>
         <div id="p-arena" class="page"><h3>⚔️ Арена</h3></div>
-        <div id="p-settings" class="page"><h3>⚙️ Опции</h3><button class="btn" style="background:var(--red)" onclick="localStorage.clear(); location.reload();">СБРОС ДАННЫХ</button></div>
+        <div id="p-settings" class="page"><h3>⚙️ Опции</h3><button class="btn" style="background:var(--red)" onclick="localStorage.clear(); location.reload();">СБРОС</button></div>
 
         <nav class="navbar">
             <div class="nav-item active-nav" onclick="showTab('city', this)">🏠<br>Город</div>
@@ -115,12 +113,12 @@
 
     <div id="worker-modal" class="modal">
         <div class="modal-content">
-            <div id="modal-icon" style="font-size: 50px;"></div>
+            <div id="modal-icon" style="font-size: 40px;"></div>
             <h3 id="modal-title"></h3>
             <p id="modal-lvl-text" style="color:var(--gold)"></p>
-            <button class="btn" style="background:#f97316" onclick="feedWorker()">🍎 Дать еду (10)</button>
-            <button class="btn" style="background:var(--green)" onclick="openMedMenu()">🧪 Медицина</button>
-            <button class="btn" style="background:var(--gold); color:black" onclick="upgradeWorker()">⭐ УЛУЧШИТЬ (200💰)</button>
+            <button class="btn" style="background:#f97316" onclick="feedWorker()">🍎 Еда (10)</button>
+            <button class="btn" style="background:var(--green)" onclick="openMedMenu()">🧪 Защита</button>
+            <button class="btn" style="background:var(--gold); color:black" onclick="upgradeWorker()">⭐ УЛУЧШИТЬ</button>
             <button class="btn" style="background:#444" onclick="closeModal()">Закрыть</button>
         </div>
     </div>
@@ -129,15 +127,15 @@
         <div class="modal-content">
             <h3>🧪 Станция защиты</h3>
             <input type="range" id="med-slider" min="10" max="1000" step="10" value="10" oninput="updateMedCalc()">
-            <div style="margin: 15px 0;">Трата: <b id="calc-med-cost">10</b> 🧪 | +<b id="calc-med-time">1</b> мин</div>
-            <button class="btn" onclick="confirmMed()">АКТИВИРОВАТЬ</button>
+            <div style="margin: 10px 0;">Трата: <b id="calc-med-cost">10</b> | +<b id="calc-med-time">1</b> мин</div>
+            <button class="btn" onclick="confirmMed()">ПРИМЕНИТЬ</button>
             <button class="btn" style="background:#444" onclick="closeMedMenu()">ОТМЕНА</button>
         </div>
     </div>
 
     <script>
         let tg = window.Telegram.WebApp;
-        const KEY = 'KINGDOM_V_15_PRO';
+        const KEY = 'KINGDOM_V_16_FINAL';
         let s = null;
         let selIdx = 0;
 
@@ -150,14 +148,13 @@
         function finishReg() {
             let n = document.getElementById('reg-name').value.trim();
             let t = document.getElementById('reg-type').value;
-            if(n.length < 3) return tg.showAlert("Имя слишком короткое");
+            if(n.length < 3) return;
             s = { money: 1000, res: 500, med: 500, food: 500, art: 5, cityLvl: 1, type: t, name: n, workers: [{ lvl: 1, hp: 100, shield: 0 }], lastSave: Date.now() };
             save(); location.reload();
         }
 
         function startApp() {
             document.getElementById('main-ui').style.display = 'block';
-            // AFK Фарм
             let diff = Math.floor((Date.now() - s.lastSave) / 1000);
             if(diff > 5) {
                 let gain = s.workers.reduce((a, b) => a + b.lvl, 0) * 0.1 * diff;
@@ -193,29 +190,25 @@
             document.getElementById('m-city-info').innerText = "Уровень города: " + s.cityLvl;
             
             let resIco = s.type === 'Завод' ? '🧱' : (s.type === 'Лаборатория' ? '🧪' : '🍎');
-
             let container = document.getElementById('workers-container');
             container.innerHTML = '';
+            
             s.workers.forEach((w, i) => {
                 let minutes = Math.ceil(w.shield / 60);
                 let income = (w.lvl * 0.1).toFixed(1);
                 container.innerHTML += `<div class="worker-card" onclick="openWorker(${i})">
                     ${w.shield > 0 ? `<div class="shield-icon-top">🛡️</div>` : ''}
-                    <div style="font-size:35px;">${i === 0 ? "👨‍✈️" : "🎖️"}</div>
-                    <div style="font-size:11px; color:var(--gold); font-weight:bold; margin-top:5px;">LVL ${w.lvl}</div>
-                    
+                    <div style="font-size:30px;">${i === 0 ? "👨‍✈️" : "🎖️"}</div>
+                    <div style="font-size:10px; color:var(--gold); font-weight:bold; margin-top:4px;">LVL ${w.lvl}</div>
                     <div class="income-badge">Доход: +${income} ${resIco}/с</div>
-                    
-                    ${w.shield > 0 ? `<div class="shield-timer-info">🛡️ ${minutes} мин</div>` : `<div style="font-size:9px; color:#555; margin-top:5px;">Без защиты</div>`}
-                    
+                    ${w.shield > 0 ? `<div class="shield-timer-info">🛡️ ${minutes} мин</div>` : `<div style="font-size:8px; color:#555; margin-top:4px;">Без защиты</div>`}
                     <div class="hp-bar"><div class="hp-fill" style="width:${w.hp}%"></div></div>
                 </div>`;
             });
         }
 
-        // ДЕЙСТВИЯ
         function hireWorker(cost, lvl) {
-            if(s.workers.length >= s.cityLvl * 3) return tg.showAlert("Нужно улучшить город!");
+            if(s.workers.length >= s.cityLvl * 3) return tg.showAlert("Лимит! Улучшите город.");
             if(s.money >= cost) { s.money -= cost; s.workers.push({ lvl: lvl, hp: 100, shield: 0 }); save(); updateUI(); }
             else tg.showAlert("Мало монет!");
         }
