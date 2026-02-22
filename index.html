@@ -7,80 +7,39 @@
     <style>
         :root { --bg: #09090b; --card: #18181b; --accent: #3b82f6; --green: #10b981; --red: #ef4444; --text: #fafafa; --gold: #f59e0b; }
         body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 110px; user-select: none; overflow-x: hidden; }
-        
         .main-header { padding: 12px; text-align: center; background: var(--card); border-bottom: 1px solid #27272a; position: sticky; top: 0; z-index: 100; }
         .coins { font-size: 22px; color: var(--gold); font-weight: 900; }
-        .corp-block { display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 4px; }
-        
         .res-row { display: grid; grid-template-columns: repeat(4, 1fr); background: #111; padding: 8px; font-size: 11px; border-bottom: 1px solid #27272a; }
         .res-item { text-align: center; }
-
+        .total-income-bar { background: rgba(16, 185, 129, 0.1); color: var(--green); padding: 6px; text-align: center; font-size: 11px; font-weight: bold; border-bottom: 1px solid rgba(16, 185, 129, 0.2); }
         .page { display: none; padding: 12px; animation: fadeIn 0.3s; }
         .active { display: block; }
-
-        /* ОБНОВЛЕННЫЕ КАРТОЧКИ (КОМПАКТНЕЕ) */
         .workers-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
-        .worker-card { 
-            background: var(--card); 
-            border-radius: 14px; 
-            padding: 12px; 
-            text-align: center; 
-            position: relative; 
-            border: 1px solid #27272a; 
-            min-height: 130px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center;
-        }
-        
-        .shield-icon-top { position: absolute; top: 8px; right: 8px; font-size: 14px; }
+        .worker-card { background: var(--card); border-radius: 14px; padding: 12px; text-align: center; position: relative; border: 1px solid #27272a; min-height: 130px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .income-badge { font-size: 10px; color: var(--green); margin-top: 6px; font-weight: bold; }
         .shield-timer-info { font-size: 9px; color: var(--accent); margin-top: 4px; background: rgba(59,130,246,0.1); padding: 2px 6px; border-radius: 6px; }
-        
         .hp-bar { width: 100%; height: 4px; background: #333; margin-top: 8px; border-radius: 2px; overflow: hidden; }
         .hp-fill { background: var(--green); height: 100%; transition: 0.3s; }
-
         .btn { background: var(--accent); color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; font-weight: 700; cursor: pointer; margin-top: 5px; font-size: 13px; }
         .navbar { position: fixed; bottom: 0; width: 100%; background: #09090b; display: grid; grid-template-columns: repeat(6, 1fr); border-top: 1px solid #27272a; padding: 10px 0; z-index: 1000; }
         .nav-item { text-align: center; color: #71717a; font-size: 8px; cursor: pointer; }
         .active-nav { color: var(--accent); font-weight: bold; }
-
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-content { background: var(--card); width: 85%; padding: 20px; border-radius: 20px; text-align: center; border: 1px solid var(--accent); }
-
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     </style>
 </head>
 <body>
-
-    <div id="reg-screen" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:var(--bg); z-index:9999; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
-        <div style="background:var(--card); padding:20px; border-radius:20px; border:1px solid var(--accent); width:100%; text-align:center;">
-            <h2>🏰 Основание</h2>
-            <input type="text" id="reg-name" style="width:100%; padding:12px; margin:10px 0; border-radius:10px; border:1px solid #333; background:#000; color:white;" placeholder="Имя...">
-            <select id="reg-type" style="width:100%; padding:12px; margin:10px 0; border-radius:10px; background:#000; color:white;">
-                <option value="Завод">🧱 Завод</option>
-                <option value="Лаборатория">🧪 Лаборатория</option>
-                <option value="Продбаза">🍎 Продбаза</option>
-            </select>
-            <button class="btn" onclick="finishReg()">СОЗДАТЬ</button>
-        </div>
-    </div>
-
-    <div id="main-ui" style="display:none;">
+    <div id="main-ui">
         <div class="main-header">
             <span class="coins">💰 <span id="m-money">0</span></span>
-            <div class="corp-block">
-                <div id="m-name-top" style="font-weight: bold; text-transform: uppercase; font-size: 14px;"></div>
-            </div>
+            <div id="m-name-top" style="font-weight: bold; text-transform: uppercase; font-size: 12px; margin-top: 4px; color: #a1a1aa;"></div>
         </div>
-
         <div class="res-row">
             <div class="res-item">🧱 <b id="m-res">0</b></div>
             <div class="res-item">🧪 <b id="m-med">0</b></div>
             <div class="res-item">🍎 <b id="m-food">0</b></div>
             <div class="res-item">✨ <b id="m-art">0</b></div>
         </div>
+        <div class="total-income-bar" id="total-production-bar">Все рабочие: +0 /мин</div>
 
         <div id="p-city" class="page active">
             <div style="background: var(--card); padding: 12px; border-radius: 12px; border: 1px solid var(--gold); text-align: center; margin-bottom: 10px;">
@@ -90,92 +49,61 @@
             <div id="workers-container" class="workers-grid"></div>
         </div>
 
-        <div id="p-hire" class="page">
-            <h3 style="text-align:center">👥 Казармы</h3>
-            <button class="btn" onclick="hireWorker(150, 1)">Новичок (150 💰)</button>
-            <button class="btn" style="background:var(--gold); color:black" onclick="hireWorker(500, 2)">Ветеран (500 💰)</button>
-        </div>
-
-        <div id="p-market" class="page"><h3>⚖️ Рынок</h3><button class="btn" onclick="trade('res')">300 🧱 → 100 💰</button></div>
-        <div id="p-forge" class="page"><h3>🔨 Кузня</h3></div>
-        <div id="p-arena" class="page"><h3>⚔️ Арена</h3></div>
+        <div id="p-hire" class="page"><h3 style="text-align:center">👥 Казармы</h3><button class="btn" onclick="hireWorker(150, 1)">Новичок (150 💰)</button></div>
+        <div id="p-market" class="page"><h3>⚖️ Рынок</h3><button class="btn">Обмен 3 к 1</button></div>
         <div id="p-settings" class="page"><h3>⚙️ Опции</h3><button class="btn" style="background:var(--red)" onclick="localStorage.clear(); location.reload();">СБРОС</button></div>
 
         <nav class="navbar">
             <div class="nav-item active-nav" onclick="showTab('city', this)">🏠<br>Город</div>
             <div class="nav-item" onclick="showTab('hire', this)">👥<br>Найм</div>
             <div class="nav-item" onclick="showTab('market', this)">⚖️<br>Рынок</div>
-            <div class="nav-item" onclick="showTab('forge', this)">🔨<br>Кузня</div>
-            <div class="nav-item" onclick="showTab('arena', this)">⚔️<br>Арена</div>
+            <div class="nav-item">🔨<br>Кузня</div>
+            <div class="nav-item">⚔️<br>Арена</div>
             <div class="nav-item" onclick="showTab('settings', this)">⚙️<br>Опции</div>
         </nav>
     </div>
 
-    <div id="worker-modal" class="modal">
-        <div class="modal-content">
-            <div id="modal-icon" style="font-size: 40px;"></div>
-            <h3 id="modal-title"></h3>
-            <p id="modal-lvl-text" style="color:var(--gold)"></p>
-            <button class="btn" style="background:#f97316" onclick="feedWorker()">🍎 Еда (10)</button>
-            <button class="btn" style="background:var(--green)" onclick="openMedMenu()">🧪 Защита</button>
-            <button class="btn" style="background:var(--gold); color:black" onclick="upgradeWorker()">⭐ УЛУЧШИТЬ</button>
-            <button class="btn" style="background:#444" onclick="closeModal()">Закрыть</button>
-        </div>
-    </div>
-
-    <div id="med-modal" class="modal">
-        <div class="modal-content">
-            <h3>🧪 Станция защиты</h3>
-            <input type="range" id="med-slider" min="10" max="1000" step="10" value="10" oninput="updateMedCalc()">
-            <div style="margin: 10px 0;">Трата: <b id="calc-med-cost">10</b> | +<b id="calc-med-time">1</b> мин</div>
-            <button class="btn" onclick="confirmMed()">ПРИМЕНИТЬ</button>
-            <button class="btn" style="background:#444" onclick="closeMedMenu()">ОТМЕНА</button>
-        </div>
-    </div>
-
     <script>
         let tg = window.Telegram.WebApp;
-        const KEY = 'KINGDOM_V_16_FINAL';
+        const KEY = 'KINGDOM_V_18_BALANCED';
         let s = null;
-        let selIdx = 0;
 
         function init() {
             const data = localStorage.getItem(KEY);
-            if (!data) { document.getElementById('reg-screen').style.display = 'flex'; }
-            else { s = JSON.parse(data); startApp(); }
+            if (!data) { 
+                s = { money: 1000, res: 500, med: 500, food: 500, art: 5, cityLvl: 1, type: 'Завод', name: 'Королевство', workers: [{ lvl: 1, hp: 100, shield: 0 }], lastSave: Date.now() };
+                save(); 
+            } else { s = JSON.parse(data); }
+            startApp();
         }
 
-        function finishReg() {
-            let n = document.getElementById('reg-name').value.trim();
-            let t = document.getElementById('reg-type').value;
-            if(n.length < 3) return;
-            s = { money: 1000, res: 500, med: 500, food: 500, art: 5, cityLvl: 1, type: t, name: n, workers: [{ lvl: 1, hp: 100, shield: 0 }], lastSave: Date.now() };
-            save(); location.reload();
-        }
+        function save() { s.lastSave = Date.now(); localStorage.setItem(KEY, JSON.stringify(s)); }
 
         function startApp() {
-            document.getElementById('main-ui').style.display = 'block';
+            // AFK расчет при входе
             let diff = Math.floor((Date.now() - s.lastSave) / 1000);
             if(diff > 5) {
-                let gain = s.workers.reduce((a, b) => a + b.lvl, 0) * 0.1 * diff;
+                let totalLvl = s.workers.reduce((a, b) => a + b.lvl, 0);
+                let gain = (totalLvl * 10 / 60) * diff; // 10 в минуту
                 if(s.type === 'Завод') s.res += gain; else if(s.type === 'Лаборатория') s.med += gain; else s.food += gain;
                 s.money += gain * 0.2;
                 s.workers.forEach(w => { 
-                    let sd = Math.min(w.shield, diff); 
-                    w.shield -= sd; 
-                    let rem = diff - sd; 
-                    if(rem > 0) w.hp = Math.max(0, w.hp - (rem * 0.01)); 
+                    let sd = Math.min(w.shield, diff); w.shield -= sd; 
+                    let rem = diff - sd; if(rem > 0) w.hp = Math.max(0, w.hp - (rem * 0.01)); 
                 });
             }
             setInterval(tick, 1000); updateUI();
         }
 
-        function save() { s.lastSave = Date.now(); localStorage.setItem(KEY, JSON.stringify(s)); }
-
         function tick() {
-            let inc = s.workers.reduce((a, b) => a + b.lvl, 0) * 0.1;
-            if(s.type === 'Завод') s.res += inc; else if(s.type === 'Лаборатория') s.med += inc; else s.food += inc;
-            s.money += inc * 0.2;
+            let totalLvl = s.workers.reduce((a, b) => a + b.lvl, 0);
+            let incPerSec = (totalLvl * 10) / 60; // Ровно 10 в минуту за каждый уровень
+            
+            if(s.type === 'Завод') s.res += incPerSec; 
+            else if(s.type === 'Лаборатория') s.med += incPerSec; 
+            else s.food += incPerSec;
+            
+            s.money += incPerSec * 0.2;
             s.workers.forEach(w => { if(w.shield > 0) w.shield--; else w.hp = Math.max(0, w.hp - 0.01); });
             save(); updateUI();
         }
@@ -190,17 +118,19 @@
             document.getElementById('m-city-info').innerText = "Уровень города: " + s.cityLvl;
             
             let resIco = s.type === 'Завод' ? '🧱' : (s.type === 'Лаборатория' ? '🧪' : '🍎');
+            
+            // ОБЩИЙ ДОХОД В МИНУТУ
+            let totalLvl = s.workers.reduce((a, b) => a + b.lvl, 0);
+            document.getElementById('total-production-bar').innerText = `Все рабочие: +${totalLvl * 10} ${resIco}/мин`;
+
             let container = document.getElementById('workers-container');
             container.innerHTML = '';
-            
             s.workers.forEach((w, i) => {
                 let minutes = Math.ceil(w.shield / 60);
-                let income = (w.lvl * 0.1).toFixed(1);
-                container.innerHTML += `<div class="worker-card" onclick="openWorker(${i})">
-                    ${w.shield > 0 ? `<div class="shield-icon-top">🛡️</div>` : ''}
-                    <div style="font-size:30px;">${i === 0 ? "👨‍✈️" : "🎖️"}</div>
-                    <div style="font-size:10px; color:var(--gold); font-weight:bold; margin-top:4px;">LVL ${w.lvl}</div>
-                    <div class="income-badge">Доход: +${income} ${resIco}/с</div>
+                container.innerHTML += `<div class="worker-card">
+                    <div style="font-size:28px;">${i === 0 ? "👨‍✈️" : "🎖️"}</div>
+                    <div style="font-size:10px; color:var(--gold); font-weight:bold;">LVL ${w.lvl}</div>
+                    <div class="income-badge">+${w.lvl * 10} ${resIco}/мин</div>
                     ${w.shield > 0 ? `<div class="shield-timer-info">🛡️ ${minutes} мин</div>` : `<div style="font-size:8px; color:#555; margin-top:4px;">Без защиты</div>`}
                     <div class="hp-bar"><div class="hp-fill" style="width:${w.hp}%"></div></div>
                 </div>`;
@@ -208,30 +138,17 @@
         }
 
         function hireWorker(cost, lvl) {
-            if(s.workers.length >= s.cityLvl * 3) return tg.showAlert("Лимит! Улучшите город.");
-            if(s.money >= cost) { s.money -= cost; s.workers.push({ lvl: lvl, hp: 100, shield: 0 }); save(); updateUI(); }
-            else tg.showAlert("Мало монет!");
+            if(s.workers.length < s.cityLvl * 3 && s.money >= cost) {
+                s.money -= cost; s.workers.push({ lvl: lvl, hp: 100, shield: 0 }); save(); updateUI();
+            } else { tg.showAlert("Лимит или мало монет!"); }
         }
 
-        function upgradeKingdom() {
-            if(s.money >= 500) { s.money -= 500; s.cityLvl++; save(); updateUI(); }
-            else tg.showAlert("Мало монет!");
+        function showTab(p, el) {
+            document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active-nav'));
+            document.getElementById('p-'+p).classList.add('active');
+            el.classList.add('active-nav');
         }
-
-        function trade(t) { if(s[t]>=300){s[t]-=300; s.money+=100; save(); updateUI();}}
-        function openWorker(i) { selIdx = i; let w = s.workers[i]; document.getElementById('modal-icon').innerText = i === 0 ? "👨‍✈️" : "🎖️"; document.getElementById('modal-title').innerText = i === 0 ? "Капитан" : "Рекрут"; document.getElementById('modal-lvl-text').innerText = "Уровень: " + w.lvl; document.getElementById('worker-modal').style.display = 'flex'; }
-        function openMedMenu() { document.getElementById('med-modal').style.display = 'flex'; }
-        function updateMedCalc() { let v = document.getElementById('med-slider').value; document.getElementById('calc-med-cost').innerText = v; document.getElementById('calc-med-time').innerText = v/10; }
-        function confirmMed() {
-            let v = parseInt(document.getElementById('med-slider').value);
-            if(s.med >= v) { s.med -= v; s.workers[selIdx].hp = 100; s.workers[selIdx].shield += (v/10)*60; save(); updateUI(); closeMedMenu(); closeModal(); }
-        }
-        function feedWorker() { let w = s.workers[selIdx]; if(w.hp < 100 && s.food >= 10) { s.food -= 10; w.hp = Math.min(100, w.hp + 20); save(); updateUI(); closeModal(); }}
-        function upgradeWorker() { if(s.money>=200) { s.money-=200; s.workers[selIdx].lvl++; save(); updateUI(); closeModal(); }}
-        
-        function closeModal() { document.getElementById('worker-modal').style.display = 'none'; }
-        function closeMedMenu() { document.getElementById('med-modal').style.display = 'none'; }
-        function showTab(p, el) { document.querySelectorAll('.page').forEach(x => x.classList.remove('active')); document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active-nav')); document.getElementById('p-'+p).classList.add('active'); el.classList.add('active-nav'); }
 
         init();
     </script>
